@@ -17,7 +17,11 @@ type User = {
   movement?: "up" | "down" | "";
 };
 
-export default function Leaderboard({ onUserUpdate }: { onUserUpdate?: (user: User) => void }) {
+export default function Leaderboard({
+  onUserUpdate,
+}: {
+  onUserUpdate?: (user: User) => void;
+}) {
   const [users, setUsers] = useState<User[]>([]);
   const [previousUsers, setPreviousUsers] = useState<User[]>([]);
 
@@ -53,10 +57,10 @@ export default function Leaderboard({ onUserUpdate }: { onUserUpdate?: (user: Us
     <div className="max-w-screen-md mx-auto p-4 space-y-6">
       <h2 className="text-xl font-bold text-center mb-4">Leaderboard</h2>
 
-      <table className="w-full table-auto border-separate border-spacing-y-2 text-sm text-white">
+      <table className="w-full text-[12px] table-auto border-separate border-spacing-y-2 text-sm text-white">
         <thead>
           <tr className="text-left bg-white/10">
-            <th className="px-3 py-2 w-6">#</th>
+            <th className="px-3 py-2 w-6">Pos</th>
             <th className="px-3 py-2">User</th>
             <th className="px-3 py-2 text-center">Scores</th>
             <th className="px-3 py-2 text-center">Outcomes</th>
@@ -69,23 +73,33 @@ export default function Leaderboard({ onUserUpdate }: { onUserUpdate?: (user: Us
               key={user._id}
               className="bg-white/5 hover:bg-white/10 rounded-lg transition"
             >
-              <td className="px-3 py-2 font-mono font-semibold">{user.position}</td>
+              <td className="px-3 py-2 font-mono font-semibold">
+                {user.position}
+              </td>
               <td className="px-3 py-2 flex items-center gap-2">
                 <Image
                   src="/default-profile.png"
-                  
                   alt={user.userName}
                   width={24}
                   height={24}
-                  className="rounded-full shadow-sm"
+                  className="rounded shadow-sm"
                 />
-                <span className="truncate">{user.userName}</span>
-                {user.position && user.previousPosition && user.position < user.previousPosition && (
-                  <Image src="/gifs/up.gif" alt="up" width={16} height={16} />
-                )}
-                {user.position && user.previousPosition && user.position > user.previousPosition && (
-                  <Image src="/gifs/down.gif" alt="down" width={16} height={16} />
-                )}
+                <span>{user.userName}</span>
+                {user.position &&
+                  user.previousPosition &&
+                  user.position < user.previousPosition && (
+                    <Image src="/gifs/up.gif" alt="up" width={16} height={16} />
+                  )}
+                {user.position &&
+                  user.previousPosition &&
+                  user.position > user.previousPosition && (
+                    <Image
+                      src="/gifs/down.gif"
+                      alt="down"
+                      width={16}
+                      height={16}
+                    />
+                  )}
               </td>
               <td className="px-3 py-2 text-center">{user.correctScores}</td>
               <td className="px-3 py-2 text-center">{user.correctOutcomes}</td>

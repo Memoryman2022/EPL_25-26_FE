@@ -6,7 +6,7 @@ export async function GET() {
   const mockUsers = [
     {
       _id: "1",
-      userName: "JaneDoe",
+      userName: "Jane Doe",
       score: 75,
       correctScores: 10,
       correctOutcomes: 20,
@@ -15,7 +15,7 @@ export async function GET() {
     },
     {
       _id: "2",
-      userName: "JohnSmith",
+      userName: "John Smith",
       score: 90,
       correctScores: 12,
       correctOutcomes: 22,
@@ -24,7 +24,7 @@ export async function GET() {
     },
     {
       _id: "3",
-      userName: "ThePredictor",
+      userName: "The Predictor",
       score: 60,
       correctScores: 7,
       correctOutcomes: 17,

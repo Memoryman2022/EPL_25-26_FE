@@ -63,12 +63,12 @@ export default function Header() {
           <ul className="flex flex-col p-4 space-y-2 text-sm">
             {!isLoggedIn ? (
               <>
-                <li>
+                <li className="mb-[20px]">
                   <Link href="/auth/login" onClick={() => setMenuOpen(false)}>
                     Login
                   </Link>
                 </li>
-                <li>
+                <li className="mb-[20px]">
                   <Link
                     href="/auth/register"
                     onClick={() => setMenuOpen(false)}
@@ -78,20 +78,25 @@ export default function Header() {
                 </li>
               </>
             ) : (
-              <li>
+              <li className="mb-[20px]">
                 <button onClick={handleLogout} className="text-left w-full">
                   Logout
                 </button>
               </li>
             )}
-            <li>
+            <li className="mb-[20px]">
               <Link href="/league-table" onClick={() => setMenuOpen(false)}>
                 EPL Table
               </Link>
             </li>
-            <li>
+            <li className="mb-[20px]">
               <Link href="/calendar" onClick={() => setMenuOpen(false)}>
                 Fixture Calendar
+              </Link>
+            </li>
+            <li className="mb-[20px]">
+              <Link href="/leaderboard" onClick={() => setMenuOpen(false)}>
+                Leaderboard
               </Link>
             </li>
           </ul>
