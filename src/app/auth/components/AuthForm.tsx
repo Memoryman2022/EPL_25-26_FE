@@ -4,7 +4,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useState } from "react";
-import { useRouter } from "next/navigation"; 
+import { useRouter } from "next/navigation";
+import { useUser } from "@/app/auth/components/Context"; // adjust path as needed
 
 const schema = z.object({
   email: z.string().email(),
@@ -21,34 +22,39 @@ export default function AuthForm({ type }: { type: "login" | "register" }) {
   } = useForm<FormData>({
     resolver: zodResolver(schema),
   });
-const router = useRouter();
+  
+  const router = useRouter();
+  const { setUser } = useUser(); // <-- get setUser from context
 
   const [loading, setLoading] = useState(false);
 
   const onSubmit = async (data: FormData) => {
-  setLoading(true);
-  try {
-    const res = await fetch(`/api/auth/${type}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-    });
-    const result = await res.json();
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/auth/${type}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
 
-    if (!res.ok) throw new Error(result.error || "Unknown error");
+      const result = await res.json();
 
-     if (type === "login") {
-      router.push("/profile");
-    } else {
-      alert(`${type} successful!`);
+      if (!res.ok) throw new Error(result.error || "Unknown error");
+
+      if (type === "login") {
+        // Assuming your login API returns user data and a token
+        setUser(result.user);               // Set user context
+        localStorage.setItem("token", result.token);  // Save token
+        router.push("/profile");
+      } else {
+        alert(`${type} successful!`);
+      }
+    } catch (err: any) {
+      alert(err.message);
+    } finally {
+      setLoading(false);
     }
-  } catch (err: any) {
-    alert(err.message);
-  } finally {
-    setLoading(false);
-  }
-};
-
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4">
@@ -81,7 +87,11 @@ const router = useRouter();
           disabled={loading}
           className="w-full bg-blue-900 text-yellow-400 font-semibold p-2 rounded hover:bg-blue-800 transition disabled:opacity-50"
         >
-          {loading ? "Please wait..." : type === "login" ? "Login" : "Register"}
+          {loading
+            ? "Please wait..."
+            : type === "login"
+            ? "Login"
+            : "Register"}
         </button>
       </form>
     </div>

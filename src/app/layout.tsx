@@ -1,6 +1,7 @@
 import "./globals.css";
 import type { Metadata } from "next";
 import Header from "@/components/Header";
+import { UserProvider } from "./auth/components/Context";
 
 export const metadata: Metadata = {
   title: "EPL Predictor Module",
@@ -15,9 +16,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        {" "}
-        {/* Padding to account for fixed header */}
-        <Header />
+        <UserProvider>
+          <Header />
+        </UserProvider>
         <main className="pt-14">{children}</main>
       </body>
     </html>

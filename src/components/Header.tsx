@@ -1,11 +1,11 @@
 "use client";
 
+import { useUser } from "@/app/auth/components/Context";
 import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import { Menu, X } from "lucide-react";
 import NavigationArrows from "@/app/utils/NavigationArrows";
-
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -14,11 +14,10 @@ export default function Header() {
   const router = useRouter();
   const pathname = usePathname();
 
-  // Simulated auth state
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const { user, setUser } = useUser();
 
+  // Scroll show/hide header logic (keep as you had it)
   useEffect(() => {
-    // Scroll-based show/hide
     const handleScroll = () => {
       const currentY = window.scrollY;
       setShowHeader(currentY < lastScrollY || currentY < 50);
@@ -29,17 +28,14 @@ export default function Header() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, [lastScrollY]);
 
-  useEffect(() => {
-    // Simulate auth state (you'd use real auth in production)
-    const token = localStorage.getItem("token");
-    setIsLoggedIn(!!token);
-  }, [pathname]);
+  // Instead of isLoggedIn state, use presence of user object
+  // If you want to keep sync with localStorage token, do it in login/logout functions
 
   const handleLogout = () => {
     localStorage.removeItem("token");
-    setIsLoggedIn(false);
+    setUser(null); // clear user context on logout
     setMenuOpen(false);
-    router.push("/auth/logout");
+    router.push("/auth/login"); // redirect to login after logout
   };
 
   return (
@@ -51,15 +47,15 @@ export default function Header() {
       <div className="relative flex items-center justify-between p-4 max-w-screen-md mx-auto">
         {/* Arrows container */}
         <div className="absolute left-4">
-  <NavigationArrows />
-</div>
+          <NavigationArrows />
+        </div>
 
         {/* Logo centered */}
         <div className="absolute left-1/2 transform -translate-x-1/2">
           <img src="/icons/predict.png" alt="Logo" className="w-8 h-8" />
         </div>
 
-        {/* Spacer to push burger to right */}
+        {/* Spacer */}
         <div className="flex-1" />
 
         {/* Burger menu */}
@@ -71,7 +67,7 @@ export default function Header() {
       {menuOpen && (
         <nav className="bg-green-900 border-t border-green-800">
           <ul className="flex flex-col p-4 space-y-2 text-sm">
-            {!isLoggedIn ? (
+            {!user ? (
               <>
                 <li className="mb-[20px]">
                   <Link href="/auth/login" onClick={() => setMenuOpen(false)}>
@@ -79,21 +75,26 @@ export default function Header() {
                   </Link>
                 </li>
                 <li className="mb-[20px]">
-                  <Link
-                    href="/auth/register"
-                    onClick={() => setMenuOpen(false)}
-                  >
+                  <Link href="/auth/register" onClick={() => setMenuOpen(false)}>
                     Register
                   </Link>
                 </li>
               </>
             ) : (
-              <li className="mb-[20px]">
-                <button onClick={handleLogout} className="text-left w-full">
-                  Logout
-                </button>
-              </li>
+              <>
+                <li className="mb-[20px]">
+                  <button onClick={handleLogout} className="text-left w-full">
+                    Logout
+                  </button>
+                </li>
+                <li className="mb-[20px]">
+                  <Link href="/profile" onClick={() => setMenuOpen(false)}>
+                    {user.email}'s Profile
+                  </Link>
+                </li>
+              </>
             )}
+
             <li className="mb-[20px]">
               <Link href="/league-table" onClick={() => setMenuOpen(false)}>
                 EPL Table
