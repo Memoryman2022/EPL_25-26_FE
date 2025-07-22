@@ -3,33 +3,28 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import Image from "next/image";
+import { teamNameToImageMap } from "../utils/teamLogos";
 import ResponsiveTeamName from "../utils/responsive-team-names";
+import Link from "next/link";
 
 // import '@/styles/EPL_Table.css'; // move CSS here from `css/` to `styles/`
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
-const teamNameToImageMap: Record<string, string> = {
-  "Arsenal FC": "Arsenal.png",
-  "Aston Villa FC": "Aston Villa.png",
-  "AFC Bournemouth": "Bournemouth.png",
-  "Brentford FC": "Brentford.png",
-  "Brighton & Hove Albion FC": "Brighton.png",
-  "Burnley FC": "Burnley.png",
-  "Chelsea FC": "Chelsea.png",
-  "Crystal Palace FC": "Crystal Palace.png",
-  "Everton FC": "Everton.png",
-  "Fulham FC": "Fulham.png",
-  "Leeds United FC": "Leeds.png",
-  "Liverpool FC": "Liverpool.png",
-  "Manchester City FC": "Manchester City.png",
-  "Manchester United FC": "Manchester United.png",
-  "Newcastle United FC": "Newcastle United.png",
-  "Nottingham Forest FC": "Nottm Forest.png",
-  "Sunderland AFC": "Sunderland.png",
-  "Tottenham Hotspur FC": "Tottenham Hotspur.png",
-  "West Ham United FC": "West Ham United.png",
-  "Wolverhampton Wanderers FC": "Wolves.png",
+type Team = {
+  id: number;
+  name: string;
+};
+
+type Standing = {
+  position: number;
+  team: Team;
+  playedGames: number;
+  won: number;
+  draw: number;
+  lost: number;
+  goalDifference: number;
+  points: number;
 };
 
 const formatOrdinal = (n: number): string => {
@@ -42,7 +37,7 @@ const getTeamImage = (teamName: string): string =>
   `/teams/${teamNameToImageMap[teamName] || "default.png"}`;
 
 export default function EPLTable() {
-  const [standings, setStandings] = useState<any[]>([]);
+  const [standings, setStandings] = useState<Standing[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<null | Error>(null);
   const [headers, setHeaders] = useState({
@@ -53,8 +48,11 @@ export default function EPLTable() {
   useEffect(() => {
     const fetchStandings = async () => {
       try {
-        const response = await axios.get("/api/standings"); // Call your own route
-        const standingsData = response.data?.standings?.[0]?.table || [];
+        const response = await axios.get("/api/standings");
+        const standingsData: Standing[] = response.data?.standings?.[0]?.table || [];
+  
+        console.log(standingsData.map((t) => t.team.id));
+  
         setStandings(standingsData);
       } catch (err: any) {
         console.error("Error fetching standings:", err);
@@ -63,9 +61,10 @@ export default function EPLTable() {
         setLoading(false);
       }
     };
-
+  
     fetchStandings();
   }, []);
+  
 
   useEffect(() => {
     const handleResize = () => {
@@ -109,7 +108,9 @@ export default function EPLTable() {
                   : "bg-[rgba(0,0,0,0.3)]"
               } hover:bg-gray-200 transition`}
             >
-              <td className="py-1 px-1">{formatOrdinal(team.position)}</td>
+              <td className="py-1 px-1">{formatOrdinal(index + 1)}</td>
+              {/* <td className="py-1 px-1">{formatOrdinal(team.position)}</td> */}
+
               <td className="py-1 px-3 flex items-center gap-2 ">
                 <Image
                   src={getTeamImage(team.team.name)}
@@ -118,7 +119,12 @@ export default function EPLTable() {
                   height={14}
                   className="rounded"
                 />
-                <ResponsiveTeamName name={team.team.name} />
+                <Link href={`/teams/${team.team.id}`}>
+  <span className="hover:underline">
+    <ResponsiveTeamName name={team.team.name} />
+  </span>
+</Link>
+
               </td>
               <td className="py-1 px-3 text-center">{team.playedGames}</td>
               <td className="py-1 px-3 text-center">{team.won}</td>
