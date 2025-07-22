@@ -49,10 +49,9 @@ export default function EPLTable() {
     const fetchStandings = async () => {
       try {
         const response = await axios.get("/api/standings");
-        const standingsData: Standing[] = response.data?.standings?.[0]?.table || [];
-  
-        console.log(standingsData.map((t) => t.team.id));
-  
+        const standingsData: Standing[] =
+          response.data?.standings?.[0]?.table || [];
+
         setStandings(standingsData);
       } catch (err: any) {
         console.error("Error fetching standings:", err);
@@ -61,10 +60,9 @@ export default function EPLTable() {
         setLoading(false);
       }
     };
-  
+
     fetchStandings();
   }, []);
-  
 
   useEffect(() => {
     const handleResize = () => {
@@ -120,11 +118,10 @@ export default function EPLTable() {
                   className="rounded"
                 />
                 <Link href={`/teams/${team.team.id}`}>
-  <span className="hover:underline">
-    <ResponsiveTeamName name={team.team.name} />
-  </span>
-</Link>
-
+                  <span className="hover:underline">
+                    <ResponsiveTeamName name={team.team.name} />
+                  </span>
+                </Link>
               </td>
               <td className="py-1 px-3 text-center">{team.playedGames}</td>
               <td className="py-1 px-3 text-center">{team.won}</td>

@@ -11,8 +11,9 @@ type Params = {
   };
 };
 
-export default async function TeamPage({ params }: Params) {
+export default async function TeamPage({ params }: { params: { id: string } }) {
   const { id } = params;
+
 
   const API_URL = `https://api.football-data.org/v4/teams/${id}`;
   const API_KEY = process.env.FOOTBALL_DATA_API_KEY; // Set this in .env

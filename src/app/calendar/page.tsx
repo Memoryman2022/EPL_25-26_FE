@@ -6,6 +6,7 @@ import moment from "moment";
 import Image from "next/image";
 import { getTeamImage } from "../utils/teamLogos";
 import ResponsiveTeamName from "../utils/responsive-team-names";
+import Link from "next/link";
 
 type Team = {
   id: number;
@@ -126,7 +127,6 @@ export default function FixtureCalendarList() {
                         <tr
                           key={fixture.id}
                           className="hover:bg-white/10 cursor-pointer h-[50px]"
-                          onClick={() => handleDayClick(date)}
                         >
                           <td className="py-2 pl-1">
                             <div className="flex items-center gap-2 rounded p-3 shadow-md">
@@ -137,9 +137,11 @@ export default function FixtureCalendarList() {
                                 height={16}
                                 className="rounded"
                               />
-                              <ResponsiveTeamName
-                                name={fixture.homeTeam.name}
-                              />
+                              <Link href={`/teams/${fixture.homeTeam.id}`}>
+                  <span className="hover:underline">
+                    <ResponsiveTeamName name={fixture.homeTeam.name} />
+                  </span>
+                </Link>
                             </div>
                           </td>
                           <td className="py-2 text-center">
@@ -156,9 +158,11 @@ export default function FixtureCalendarList() {
                                 height={16}
                                 className="rounded"
                               />
-                              <ResponsiveTeamName
-                                name={fixture.awayTeam.name}
-                              />
+                              <Link href={`/teams/${fixture.awayTeam.id}`}>
+                  <span className="hover:underline">
+                    <ResponsiveTeamName name={fixture.awayTeam.name} />
+                  </span>
+                </Link>
                             </div>
                           </td>
                           <td className="text-right pr-4 font-mono">
