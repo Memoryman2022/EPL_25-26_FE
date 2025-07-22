@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useState } from "react";
+import { useRouter } from "next/navigation"; 
 
 const schema = z.object({
   email: z.string().email(),
@@ -20,28 +21,34 @@ export default function AuthForm({ type }: { type: "login" | "register" }) {
   } = useForm<FormData>({
     resolver: zodResolver(schema),
   });
+const router = useRouter();
 
   const [loading, setLoading] = useState(false);
 
   const onSubmit = async (data: FormData) => {
-    setLoading(true);
-    try {
-      const res = await fetch(`/api/${type}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
+  setLoading(true);
+  try {
+    const res = await fetch(`/api/auth/${type}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    const result = await res.json();
 
-      const result = await res.json();
-      if (!res.ok) throw new Error(result.message || "Unknown error");
+    if (!res.ok) throw new Error(result.error || "Unknown error");
 
+     if (type === "login") {
+      router.push("/profile");
+    } else {
       alert(`${type} successful!`);
-    } catch (err: any) {
-      alert(err.message);
-    } finally {
-      setLoading(false);
     }
-  };
+  } catch (err: any) {
+    alert(err.message);
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4">

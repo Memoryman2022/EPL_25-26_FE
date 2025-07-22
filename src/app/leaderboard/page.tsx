@@ -5,8 +5,6 @@ import axios from "axios";
 import Image from "next/image";
 import Link from "next/link";
 
-// import { API_URL } from "../config";
-
 type User = {
   _id: string;
   userName: string;
@@ -37,10 +35,14 @@ export default function Leaderboard({
       const sorted = data.sort((a: User, b: User) => b.score - a.score);
 
       const withPositions = sorted.map((user: User, i: number) => ({
-        ...user,
-        position: i + 1,
-        previousPosition: user.previousPosition || i + 1,
-      }));
+  ...user,
+  position: i + 1,
+  previousPosition: user.previousPosition || i + 1,
+  score: user.score || 0,
+  correctScores: user.correctScores || 0,
+  correctOutcomes: user.correctOutcomes || 0,
+}));
+
 
       setUsers(withPositions);
       setPreviousUsers(withPositions);

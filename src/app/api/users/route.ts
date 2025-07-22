@@ -1,37 +1,26 @@
-// app/api/users/route.ts
 import { NextResponse } from "next/server";
+import clientPromise from "@/lib/mongodb";
 
 export async function GET() {
-  // Mock user data
-  const mockUsers = [
-    {
-      _id: "1",
-      userName: "Jane Doe",
-      score: 75,
-      correctScores: 10,
-      correctOutcomes: 20,
-      profileImage: null,
-      previousPosition: 2,
-    },
-    {
-      _id: "2",
-      userName: "John Smith",
-      score: 90,
-      correctScores: 12,
-      correctOutcomes: 22,
-      profileImage: null,
-      previousPosition: 1,
-    },
-    {
-      _id: "3",
-      userName: "The Predictor",
-      score: 60,
-      correctScores: 7,
-      correctOutcomes: 17,
-      profileImage: null,
-      previousPosition: 4,
-    },
-  ];
+  try {
+    const client = await clientPromise;
+    const db = client.db("EPL2025");
 
-  return NextResponse.json(mockUsers);
+    const users = await db.collection("users").find({}).toArray();
+
+    // Transform data if necessary, for example, map _id from ObjectId to string
+    const safeUsers = users.map(user => ({
+      _id: user._id.toString(),
+      userName: user.email,          // Assuming you stored email as userName
+      score: user.score || 0,
+      correctScores: user.correctScores || 0,
+      correctOutcomes: user.correctOutcomes || 0,
+      profileImage: user.profileImage || null,
+      previousPosition: user.previousPosition || null,
+    }));
+
+    return NextResponse.json(safeUsers);
+  } catch (error) {
+    return NextResponse.json({ error: "Failed to fetch users" }, { status: 500 });
+  }
 }
