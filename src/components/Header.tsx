@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import { Menu, X } from "lucide-react";
+import NavigationArrows from "@/app/utils/NavigationArrows";
+
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -47,12 +49,20 @@ export default function Header() {
       } bg-green-900`}
     >
       <div className="relative flex items-center justify-between p-4 max-w-screen-md mx-auto">
+        {/* Arrows container */}
+        <div className="absolute left-4">
+  <NavigationArrows />
+</div>
+
+        {/* Logo centered */}
         <div className="absolute left-1/2 transform -translate-x-1/2">
           <img src="/icons/predict.png" alt="Logo" className="w-8 h-8" />
         </div>
 
+        {/* Spacer to push burger to right */}
         <div className="flex-1" />
 
+        {/* Burger menu */}
         <button onClick={() => setMenuOpen(!menuOpen)} aria-label="Toggle Menu">
           {menuOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
