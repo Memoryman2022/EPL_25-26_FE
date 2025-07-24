@@ -11,7 +11,7 @@ export async function GET() {
     // Transform data if necessary, for example, map _id from ObjectId to string
     const safeUsers = users.map(user => ({
       _id: user._id.toString(),
-      userName: user.email,          // Assuming you stored email as userName
+      userName: user.userName,          // Assuming you stored email as userName
       score: user.score || 0,
       correctScores: user.correctScores || 0,
       correctOutcomes: user.correctOutcomes || 0,

@@ -1,7 +1,9 @@
-// app/api/auth/login/route.ts
 import { NextResponse } from "next/server";
 import clientPromise from "@/lib/mongodb";
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+
+const JWT_SECRET = process.env.JWT_SECRET || "your-default-secret"; // set your secret in env
 
 export async function POST(request: Request) {
   try {
@@ -14,30 +16,32 @@ export async function POST(request: Request) {
     const client = await clientPromise;
     const db = client.db("EPL2025");
 
-    // Find user by email
     const user = await db.collection("users").findOne({ email });
 
     if (!user) {
       return NextResponse.json({ error: "Invalid email or password" }, { status: 401 });
     }
 
-    // Check password
     const isValid = await bcrypt.compare(password, user.password);
 
     if (!isValid) {
       return NextResponse.json({ error: "Invalid email or password" }, { status: 401 });
     }
 
-    // TODO: Set a session or JWT here if you want authentication persistence
+    // Generate JWT token
+    const token = jwt.sign(
+      { userId: user._id.toString(), email: user.email },
+      JWT_SECRET,
+      { expiresIn: "1h" }
+    );
 
-    // For now, return success with some user info (avoid returning password!)
     return NextResponse.json({
       message: "Login successful",
       user: {
         _id: user._id.toString(),
         email: user.email,
-        // Add any other public user info here
       },
+      token,
     });
   } catch (error) {
     console.error(error);

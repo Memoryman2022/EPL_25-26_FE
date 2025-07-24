@@ -22,7 +22,7 @@ export default function AuthForm({ type }: { type: "login" | "register" }) {
   } = useForm<FormData>({
     resolver: zodResolver(schema),
   });
-  
+
   const router = useRouter();
   const { setUser } = useUser(); // <-- get setUser from context
 
@@ -41,14 +41,17 @@ export default function AuthForm({ type }: { type: "login" | "register" }) {
 
       if (!res.ok) throw new Error(result.error || "Unknown error");
 
-      if (type === "login") {
-        // Assuming your login API returns user data and a token
-        setUser(result.user);               // Set user context
-        localStorage.setItem("token", result.token);  // Save token
-        router.push("/profile");
-      } else {
-        alert(`${type} successful!`);
+      if (!result.user || !result.user._id) {
+        console.error("Bad response:", result);
+        throw new Error("User data missing in API response");
       }
+
+      setUser(result.user);
+      localStorage.setItem("token", result.token);
+      localStorage.setItem("userId", result.user._id);
+
+      router.push(`/user/${result.user._id}`);
+      alert(`${type} successful!`);
     } catch (err: any) {
       alert(err.message);
     } finally {
@@ -87,11 +90,7 @@ export default function AuthForm({ type }: { type: "login" | "register" }) {
           disabled={loading}
           className="w-full bg-blue-900 text-yellow-400 font-semibold p-2 rounded hover:bg-blue-800 transition disabled:opacity-50"
         >
-          {loading
-            ? "Please wait..."
-            : type === "login"
-            ? "Login"
-            : "Register"}
+          {loading ? "Please wait..." : type === "login" ? "Login" : "Register"}
         </button>
       </form>
     </div>

@@ -18,8 +18,8 @@ export default function RootLayout({
       <body>
         <UserProvider>
           <Header />
-        </UserProvider>
         <main className="pt-14">{children}</main>
+        </UserProvider>
       </body>
     </html>
   );
