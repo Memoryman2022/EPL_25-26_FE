@@ -50,7 +50,7 @@ export default function AuthForm({ type }: { type: "login" | "register" }) {
       localStorage.setItem("token", result.token);
       localStorage.setItem("userId", result.user._id);
 
-      router.push(`/user/${result.user._id}`);
+      router.push(`/users/${result.user._id}`);
       alert(`${type} successful!`);
     } catch (err: any) {
       alert(err.message);
