@@ -4,9 +4,9 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import moment from "moment";
 import Image from "next/image";
+import Link from "next/link";
 import { getTeamImage } from "../utils/teamLogos";
 import ResponsiveTeamName from "../utils/responsive-team-names";
-import Link from "next/link";
 
 type Team = {
   id: number;
@@ -20,18 +20,13 @@ type Fixture = {
   id: string;
   homeTeam: Team;
   awayTeam: Team;
-  time: string;
+  utcDate: string;
+  time: string; // added in frontend, not from API
 };
 
-type MatchDays = {
-  [date: string]: Fixture[];
-};
+type MatchDays = Record<string, Fixture[]>;
 
-type MonthMap = {
-  [month: string]: {
-    [date: string]: Fixture[];
-  };
-};
+type MonthMap = Record<string, Record<string, Fixture[]>>;
 
 export default function FixtureCalendarList() {
   const [matchDays, setMatchDays] = useState<MatchDays>({});
@@ -44,20 +39,22 @@ export default function FixtureCalendarList() {
     const fetchFixtures = async () => {
       try {
         const res = await fetch("/api/fixtures");
-        const data = await res.json();
+        if (!res.ok) throw new Error(`Error fetching fixtures: ${res.statusText}`);
 
-         // Inject fake times
-      const withTimes: MatchDays = {};
-      for (const date in data.matchDays) {
-        withTimes[date] = data.matchDays[date].map((fixture: Fixture, i: number) => ({
-          ...fixture,
-          time: `${12 + (i % 6)}:${(i % 2 === 0 ? "00" : "30")}`, // e.g. 12:00, 13:30, etc.
-        }));
-      }
+        const data: { matchDays: MatchDays } = await res.json();
 
-        setMatchDays(withTimes || {});
+        // Add fake time property (for display)
+        const withTimes: MatchDays = {};
+        for (const date in data.matchDays) {
+          withTimes[date] = data.matchDays[date].map((fixture, i) => ({
+            ...fixture,
+            time: `${12 + (i % 6)}:${i % 2 === 0 ? "00" : "30"}`,
+          }));
+        }
+
+        setMatchDays(withTimes);
       } catch (err: any) {
-        setError("Failed to load fixtures");
+        setError(err.message || "Failed to load fixtures");
       } finally {
         setLoading(false);
       }
@@ -66,10 +63,6 @@ export default function FixtureCalendarList() {
     fetchFixtures();
   }, []);
 
-  const handleDayClick = (date: string) => {
-    router.push(`/fixtures/${date}`);
-  };
-
   const toggleMonth = (month: string) => {
     setOpenMonths((prev) => ({ ...prev, [month]: !prev[month] }));
   };
@@ -77,10 +70,12 @@ export default function FixtureCalendarList() {
   if (loading) return <p className="p-4">Loading...</p>;
   if (error) return <p className="p-4 text-red-500">{error}</p>;
 
+  // Sort dates ascending
   const sortedDates = Object.keys(matchDays).sort(
     (a, b) => new Date(a).getTime() - new Date(b).getTime()
   );
 
+  // Group fixtures by month -> date
   const groupedByMonth: MonthMap = {};
   for (const date of sortedDates) {
     const month = moment(date).format("MMMM YYYY");
@@ -90,9 +85,7 @@ export default function FixtureCalendarList() {
 
   return (
     <div className="max-w-screen-md mx-auto p-4 space-y-6">
-      <h1 className="text-xl font-bold text-center mb-6">
-        Match Day Calendar
-      </h1>
+      <h1 className="text-xl font-bold text-center mb-6">Match Day Calendar</h1>
 
       {Object.entries(groupedByMonth).map(([month, days]) => (
         <div
@@ -123,10 +116,11 @@ export default function FixtureCalendarList() {
                       </tr>
                     </thead>
                     <tbody>
-                      {fixtures.map((fixture) => (
+                      {fixtures.map((fixture: Fixture) => (
                         <tr
                           key={fixture.id}
                           className="hover:bg-white/10 cursor-pointer h-[50px]"
+                          onClick={() => router.push(`/fixtures/${fixture.id}`)}
                         >
                           <td className="py-2 pl-1">
                             <div className="flex items-center gap-2 rounded p-3 shadow-md">
@@ -138,16 +132,14 @@ export default function FixtureCalendarList() {
                                 className="rounded"
                               />
                               <Link href={`/teams/${fixture.homeTeam.id}`}>
-                  <span className="hover:underline">
-                    <ResponsiveTeamName name={fixture.homeTeam.name} />
-                  </span>
-                </Link>
+                                <span className="hover:underline">
+                                  <ResponsiveTeamName name={fixture.homeTeam.name} />
+                                </span>
+                              </Link>
                             </div>
                           </td>
                           <td className="py-2 text-center">
-                            <div className="flex items-center justify-center h-full">
-                              vs
-                            </div>
+                            <div className="flex items-center justify-center h-full">vs</div>
                           </td>
                           <td className="py-2 pl-1">
                             <div className="flex items-center gap-2 rounded p-3 shadow-md">
@@ -159,15 +151,13 @@ export default function FixtureCalendarList() {
                                 className="rounded"
                               />
                               <Link href={`/teams/${fixture.awayTeam.id}`}>
-                  <span className="hover:underline">
-                    <ResponsiveTeamName name={fixture.awayTeam.name} />
-                  </span>
-                </Link>
+                                <span className="hover:underline">
+                                  <ResponsiveTeamName name={fixture.awayTeam.name} />
+                                </span>
+                              </Link>
                             </div>
                           </td>
-                          <td className="text-right pr-4 font-mono">
-                            {fixture.time}
-                          </td>
+                          <td className="text-right pr-4 font-mono">{fixture.time}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -180,9 +170,7 @@ export default function FixtureCalendarList() {
       ))}
 
       {sortedDates.length === 0 && (
-        <p className="text-center text-sm text-gray-400">
-          No match days available.
-        </p>
+        <p className="text-center text-sm text-gray-400">No match days available.</p>
       )}
     </div>
   );

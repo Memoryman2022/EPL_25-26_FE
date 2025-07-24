@@ -12,7 +12,7 @@ type Params = {
 };
 
 export default async function TeamPage({ params }: { params: { id: string } }) {
-  const { id } = params;
+  const { id } = await params;
 
 
   const API_URL = `https://api.football-data.org/v4/teams/${id}`;

@@ -1,6 +1,18 @@
 // src/app/api/fixtures/route.ts
 import { NextResponse } from 'next/server';
 
+type Team = {
+  id: number;
+  name: string;
+};
+
+type Fixture = {
+  id: number;
+  homeTeam: Team;
+  awayTeam: Team;
+  utcDate: string;
+};
+
 export async function GET() {
   const API_KEY = process.env.FOOTBALL_DATA_API_KEY;
   const url = 'https://api.football-data.org/v4/competitions/2021/matches';
@@ -31,4 +43,28 @@ export async function GET() {
   } catch (err) {
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
+}
+
+async function getFixture(id: string): Promise<Fixture> {
+  const API_KEY = process.env.FOOTBALL_DATA_API_KEY;
+  const url = `https://api.football-data.org/v4/matches/${id}`;
+
+  const res = await fetch(url, {
+    headers: { 'X-Auth-Token': API_KEY || '' },
+  });
+
+  if (!res.ok) {
+    throw new Error('Failed to fetch fixture');
+  }
+
+  const data = await res.json();
+
+  // Example: adapt shape as needed
+  return {
+    id: data.match.id,
+    homeTeam: data.match.homeTeam,
+    awayTeam: data.match.awayTeam,
+    utcDate: data.match.utcDate,
+    // add more fields if needed, like time, score, etc.
+  };
 }
