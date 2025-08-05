@@ -10,6 +10,7 @@ type Prediction = {
   homeScore: number | "";
   awayScore: number | "";
   outcome: "homeWin" | "draw" | "awayWin" | "";
+  odds?: string;
   calculated?: boolean;
   updatedAt?: string;
 };
@@ -32,8 +33,10 @@ export default function MatchPredictionForm({ fixture, userId }: Props) {
   const [homeScore, setHomeScore] = useState<number | "">("");
   const [awayScore, setAwayScore] = useState<number | "">("");
   const [submitting, setSubmitting] = useState(false);
+  const [odds, setOdds] = useState<string>("N/A");
   const [existingPrediction, setExistingPrediction] = useState<Prediction | undefined>();
 
+  // Fetch existing prediction if it exists
   useEffect(() => {
     async function fetchPrediction() {
       const res = await fetch(`/api/predictions?fixtureId=${fixture.id}&userId=${userId}`);
@@ -49,6 +52,32 @@ export default function MatchPredictionForm({ fixture, userId }: Props) {
     fetchPrediction();
   }, [fixture.id, userId]);
 
+  // 🔁 Fetch odds dynamically when scores change
+  useEffect(() => {
+    const fetchOdds = async () => {
+      if (homeScore === "" || awayScore === "") {
+        setOdds("N/A");
+        return;
+      }
+
+      try {
+        const res = await fetch(`/api/odds?home=${homeScore}&away=${awayScore}`);
+        if (res.ok) {
+          const data = await res.json();
+          setOdds(data.odds || "N/A");
+        } else {
+          setOdds("N/A");
+        }
+      } catch (error) {
+        console.error("Error fetching odds:", error);
+        setOdds("N/A");
+      }
+    };
+
+    fetchOdds();
+  }, [homeScore, awayScore]);
+
+  // Submit the prediction
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (homeScore === "" || awayScore === "") return;
@@ -60,6 +89,7 @@ export default function MatchPredictionForm({ fixture, userId }: Props) {
       userId,
       homeScore,
       awayScore,
+      odds,
       outcome:
         homeScore > awayScore
           ? "homeWin"
@@ -111,26 +141,27 @@ export default function MatchPredictionForm({ fixture, userId }: Props) {
         </div>
       </div>
 
+      {/* Odds display */}
+      <div className="text-center text-m ">
+        {homeScore !== "" && awayScore !== "" ? (
+          <span>Predicted odds: <span className="font-semibold">{odds}</span></span>
+        ) : (
+          <span className="text-gray-400">Enter a scoreline to see odds</span>
+        )}
+      </div>
+
+      {/* Submit button */}
       <button
         type="submit"
         disabled={submitting}
-        className="bg-black text-white mt-4  rounded-full disabled:opacity-50 mx-auto block relative w-32 h-10"
+        className="bg-black text-white mt-2 rounded-full disabled:opacity-50 mx-auto block relative w-32 h-10"
       >
-        {submitting || existingPrediction ? (
-          <Image
-            src="/icons/lock.png"
-            alt="Locked"
-            fill
-            style={{ objectFit: "contain" }}
-          />
-        ) : (
-          <Image
-            src="/icons/predict.png"
-            alt="Predict"
-            fill
-            style={{ objectFit: "contain" }}
-          />
-        )}
+        <Image
+          src={submitting || existingPrediction ? "/icons/lock.png" : "/icons/predict.png"}
+          alt={submitting || existingPrediction ? "Locked" : "Predict"}
+          fill
+          style={{ objectFit: "contain" }}
+        />
       </button>
     </form>
   );
