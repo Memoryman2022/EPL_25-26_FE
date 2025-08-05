@@ -39,7 +39,8 @@ export default function FixtureCalendarList() {
     const fetchFixtures = async () => {
       try {
         const res = await fetch("/api/fixtures");
-        if (!res.ok) throw new Error(`Error fetching fixtures: ${res.statusText}`);
+        if (!res.ok)
+          throw new Error(`Error fetching fixtures: ${res.statusText}`);
 
         const data: { matchDays: MatchDays } = await res.json();
 
@@ -120,7 +121,13 @@ export default function FixtureCalendarList() {
                         <tr
                           key={fixture.id}
                           className="hover:bg-white/10 cursor-pointer h-[50px]"
-                          onClick={() => router.push(`/fixtures/${fixture.id}`)}
+                          onClick={() => {
+  if (typeof window !== "undefined") {
+    sessionStorage.setItem("selectedFixture", JSON.stringify(fixture));
+    router.push(`/fixtures/${fixture.id}`);
+  }
+}}
+
                         >
                           <td className="py-2 pl-1">
                             <div className="flex items-center gap-2 rounded p-3 shadow-md">
@@ -133,13 +140,17 @@ export default function FixtureCalendarList() {
                               />
                               <Link href={`/teams/${fixture.homeTeam.id}`}>
                                 <span className="hover:underline">
-                                  <ResponsiveTeamName name={fixture.homeTeam.name} />
+                                  <ResponsiveTeamName
+                                    name={fixture.homeTeam.name}
+                                  />
                                 </span>
                               </Link>
                             </div>
                           </td>
                           <td className="py-2 text-center">
-                            <div className="flex items-center justify-center h-full">vs</div>
+                            <div className="flex items-center justify-center h-full">
+                              vs
+                            </div>
                           </td>
                           <td className="py-2 pl-1">
                             <div className="flex items-center gap-2 rounded p-3 shadow-md">
@@ -152,12 +163,16 @@ export default function FixtureCalendarList() {
                               />
                               <Link href={`/teams/${fixture.awayTeam.id}`}>
                                 <span className="hover:underline">
-                                  <ResponsiveTeamName name={fixture.awayTeam.name} />
+                                  <ResponsiveTeamName
+                                    name={fixture.awayTeam.name}
+                                  />
                                 </span>
                               </Link>
                             </div>
                           </td>
-                          <td className="text-right pr-4 font-mono">{fixture.time}</td>
+                          <td className="text-right pr-4 font-mono">
+                            {fixture.time}
+                          </td>
                         </tr>
                       ))}
                     </tbody>
@@ -170,7 +185,9 @@ export default function FixtureCalendarList() {
       ))}
 
       {sortedDates.length === 0 && (
-        <p className="text-center text-sm text-gray-400">No match days available.</p>
+        <p className="text-center text-sm text-gray-400">
+          No match days available.
+        </p>
       )}
     </div>
   );

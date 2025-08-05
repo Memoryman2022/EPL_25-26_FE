@@ -42,7 +42,7 @@ export default function Header() {
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-transform duration-300 shadow-md ${
         showHeader ? "translate-y-0" : "-translate-y-full"
-      } bg-green-900`}
+      } bg-black`}
     >
       <div className="relative flex items-center justify-between p-4 max-w-screen-md mx-auto">
         {/* Arrows container */}
@@ -65,7 +65,7 @@ export default function Header() {
       </div>
 
       {menuOpen && (
-        <nav className="bg-green-900 border-t border-green-800">
+        <nav className="bg-black border-t border-green-200">
           <ul className="flex flex-col p-4 space-y-2 text-sm">
             {!user ? (
               <>
