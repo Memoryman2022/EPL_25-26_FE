@@ -34,7 +34,7 @@ function FixturePage({ fixture, userId }: Props) {
   return (
   <div className="p-4 max-w-screen-md mx-auto flex flex-col items-center space-y-6">
    
-    <span className="text-xl font-semibold">
+    <span className=" bg-gray-800 px-2 py-2 border rounded text-xl text-gray-200 font-semibold">
       {formatDateTime(fixture.utcDate)}
     </span>
 

@@ -122,7 +122,7 @@ export default function MatchPredictionForm({ fixture, userId }: Props) {
           <input
             type="number"
             id="homeScore"
-            className="w-16 text-center border rounded p-1"
+            className="w-16 bg-gray-800 text-center border rounded p-1"
             value={homeScore}
             onChange={(e) => setHomeScore(e.target.value === "" ? "" : Number(e.target.value))}
           />
@@ -134,7 +134,7 @@ export default function MatchPredictionForm({ fixture, userId }: Props) {
           <input
             type="number"
             id="awayScore"
-            className="w-16 text-center border rounded p-1"
+            className="w-16 bg-gray-800 text-center border rounded p-1"
             value={awayScore}
             onChange={(e) => setAwayScore(e.target.value === "" ? "" : Number(e.target.value))}
           />
@@ -146,7 +146,7 @@ export default function MatchPredictionForm({ fixture, userId }: Props) {
         {homeScore !== "" && awayScore !== "" ? (
           <span>Predicted odds: <span className="font-semibold">{odds}</span></span>
         ) : (
-          <span className="text-gray-400">Enter a scoreline to see odds</span>
+          <span className="text-gray-100">Enter a scoreline to see odds</span>
         )}
       </div>
 

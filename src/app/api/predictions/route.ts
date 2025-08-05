@@ -60,7 +60,7 @@ export async function POST(req: Request) {
       awayScore,
       outcome,
       odds,
-      calculated: true,
+      calculated: false,
       updatedAt: new Date(),
     });
 
@@ -115,7 +115,7 @@ export async function PUT(req: Request) {
       awayScore,
       outcome,
       odds,
-      calculated: true,
+      calculated: false,
       updatedAt: new Date(),
     },
   },
