@@ -84,7 +84,7 @@ export default function EPLTable() {
   return (
     <div className="overflow-x-auto p-4 text-shadow">
       <table className="min-w-full rounded-lg shadow-md ">
-        <thead className="bg-gradient-to-b from-green-00 to-green-900 text-white text-[12px] sticky top-0 z-10">
+        <thead className="bg-gradient-to-b from-gray-00 to-gray-900 text-white text-[12px] sticky top-0 z-10">
           <tr>
             <th className="py-1 px-1 text-left">Pos</th>
             <th className="py-1 px-6 text-left">Team</th>
