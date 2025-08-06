@@ -1,7 +1,11 @@
-import type { NextConfig } from "next";
-
-const nextConfig: NextConfig = {
-  /* config options here */
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  images: {
+    domains: [
+      'placehold.co', // Add this line for the placeholder images
+      // Add any other external image domains your app uses (e.g., 'example.com', 'another-cdn.net')
+    ],
+  },
 };
 
-export default nextConfig;
+module.exports = nextConfig;
