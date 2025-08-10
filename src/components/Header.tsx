@@ -14,9 +14,8 @@ export default function Header() {
   const router = useRouter();
   const pathname = usePathname();
 
-  const { user, setUser } = useUser();
+  const { user, setUser, authLoaded } = useUser(); // <-- NEW
 
-  // Scroll show/hide header logic (keep as you had it)
   useEffect(() => {
     const handleScroll = () => {
       const currentY = window.scrollY;
@@ -28,15 +27,17 @@ export default function Header() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, [lastScrollY]);
 
-  // Instead of isLoggedIn state, use presence of user object
-  // If you want to keep sync with localStorage token, do it in login/logout functions
-
   const handleLogout = () => {
     localStorage.removeItem("token");
-    setUser(null); // clear user context on logout
+    localStorage.removeItem("userId");
+    localStorage.removeItem("userEmail");
+    setUser(null);
     setMenuOpen(false);
-    router.push("/auth/login"); // redirect to login after logout
+    router.push("/auth/login");
   };
+
+  // ✅ Don't render anything auth-dependent until auth is loaded
+  if (!authLoaded) return null;
 
   return (
     <header
@@ -45,27 +46,23 @@ export default function Header() {
       } bg-black`}
     >
       <div className="relative flex items-center justify-between p-4 max-w-screen-md mx-auto">
-        {/* Arrows container */}
         <div className="absolute left-4">
           <NavigationArrows />
         </div>
 
-        {/* Logo centered */}
         <div className="absolute left-1/2 transform -translate-x-1/2">
           <img src="/icons/predict.png" alt="Logo" className="w-8 h-8" />
         </div>
 
-        {/* Spacer */}
         <div className="flex-1" />
 
-        {/* Burger menu */}
         <button onClick={() => setMenuOpen(!menuOpen)} aria-label="Toggle Menu">
           {menuOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
       </div>
 
       {menuOpen && (
-        <nav className="bg-black border-t border-green-200">
+        <nav className="bg-gray-800 border-t border-green-200">
           <ul className="flex flex-col p-4 space-y-2 text-sm">
             {!user ? (
               <>
@@ -74,7 +71,7 @@ export default function Header() {
                     Login
                   </Link>
                 </li>
-                <li className="mb-[20px]">
+                <li className="">
                   <Link href="/auth/register" onClick={() => setMenuOpen(false)}>
                     Register
                   </Link>
@@ -89,27 +86,31 @@ export default function Header() {
                 </li>
                 <li className="mb-[20px]">
                   <Link href="/profile" onClick={() => setMenuOpen(false)}>
-                    {user.email}'s Profile
+                    Profile
                   </Link>
                 </li>
               </>
             )}
 
-            <li className="mb-[20px]">
-              <Link href="/league-table" onClick={() => setMenuOpen(false)}>
-                EPL Table
-              </Link>
-            </li>
-            <li className="mb-[20px]">
-              <Link href="/calendar" onClick={() => setMenuOpen(false)}>
-                Fixture Calendar
-              </Link>
-            </li>
-            <li className="mb-[20px]">
-              <Link href="/leaderboard" onClick={() => setMenuOpen(false)}>
-                Leaderboard
-              </Link>
-            </li>
+            {user && (
+              <>
+                <li className="mb-[20px]">
+                  <Link href="/league-table" onClick={() => setMenuOpen(false)}>
+                    EPL Table
+                  </Link>
+                </li>
+                <li className="mb-[20px]">
+                  <Link href="/calendar" onClick={() => setMenuOpen(false)}>
+                    Fixture Calendar
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/leaderboard" onClick={() => setMenuOpen(false)}>
+                    Leaderboard
+                  </Link>
+                </li>
+              </>
+            )}
           </ul>
         </nav>
       )}

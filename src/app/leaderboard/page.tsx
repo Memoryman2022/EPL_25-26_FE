@@ -81,30 +81,34 @@ export default function Leaderboard({
                 {user.position}
               </td>
               <td className="px-3 py-2 flex items-center gap-2">
-  <Image
-    src="/default-profile.png"
-    alt={user.userName}
-    width={24}
-    height={24}
-    className="rounded shadow-sm"
-  />
-  <Link href={`/users/${user._id}`}
-    className="hover:underline text-blue-400">{user.userName}
+  <Link
+    href={`/profile?userId=${user._id}`}
+    className="flex items-center gap-2 hover:underline text-white"
+  >
+    <Image
+      src={user.profileImage || "/default-profile.png"}
+      alt={`${user.userName}'s profile picture`}
+      width={24}
+      height={24}
+      className="rounded shadow-sm"
+    />
+    {user.userName}
   </Link>
   {user.position &&
     user.previousPosition &&
     user.position < user.previousPosition && (
-      <Image src="/gifs/up.gif" alt="up" width={16} height={16} />
+      <Image src="/gifs/up.gif" alt="moved up" width={16} height={16} />
     )}
   {user.position &&
     user.previousPosition &&
     user.position > user.previousPosition && (
-      <Image src="/gifs/down.gif" alt="down" width={16} height={16} />
+      <Image src="/gifs/down.gif" alt="moved down" width={16} height={16} />
     )}
 </td>
+
               <td className="px-3 py-2 text-center">{user.correctScores}</td>
               <td className="px-3 py-2 text-center">{user.correctOutcomes}</td>
-              <td className="px-3 py-2 text-right font-mono font-semibold">
+              <td className="px-3 py-2 text-center font-mono font-semibold">
                 {user.score}
               </td>
             </tr>

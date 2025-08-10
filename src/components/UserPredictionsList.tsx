@@ -15,131 +15,104 @@ type Prediction = {
 };
 
 type Props = {
-  fixtureId: number;
+  fixtureId?: number; // optional
+  userId?: string; // optional — if you want to fetch for any user
 };
 
-// Temporary mock data for testing purposes
-const mockPredictions: Prediction[] = [
-  {
-    userId: "user123",
-    userName: "Alice",
-    userAvatar: "https://placehold.co/40x40/FF5733/FFFFFF?text=A", // Placeholder for avatar
-    homeScore: 2,
-    awayScore: 1,
-    outcome: "homeWin",
-    odds: "1.50",
-    points: 3,
-  },
-  {
-    userId: "user456",
-    userName: "Bob",
-    userAvatar: "https://placehold.co/40x40/3366FF/FFFFFF?text=B", // Placeholder for avatar
-    homeScore: 0,
-    awayScore: 0,
-    outcome: "draw",
-    odds: "3.20",
-    points: null, // Points not yet calculated
-  },
-  {
-    userId: "user789",
-    userName: "Charlie",
-    userAvatar: "https://placehold.co/40x40/33FF57/FFFFFF?text=C", // Placeholder for avatar
-    homeScore: 1,
-    awayScore: 3,
-    outcome: "awayWin",
-    odds: "4.00",
-    points: 0, // Example: incorrect prediction
-  },
-];
-
-export default function UserPredictionsList({ fixtureId }: Props) {
+export default function UserPredictionsList({ fixtureId, userId }: Props) {
   const [predictions, setPredictions] = useState<Prediction[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchPredictions() {
-      // --- START: Temporary Test Logic ---
-      if (fixtureId === 999) {
-        // Use a dummy fixtureId like 999 for testing mock data
-        console.log("Using mock data for fixtureId 999");
-        setPredictions(mockPredictions);
-        setLoading(false);
-        return;
-      }
-      // --- END: Temporary Test Logic ---
-
+      setLoading(true);
       try {
-        console.log(`Fetching predictions for fixtureId: ${fixtureId}`);
-        const res = await fetch(`/api/predictions/fixture/${fixtureId}`);
+        let query = [];
+        if (fixtureId) query.push(`fixtureId=${fixtureId}`);
+
+        // For the logged-in user, no userId query needed, API gets userId from token
+        // For others, userId query can be appended (if allowed by API)
+        if (userId) query.push(`userId=${userId}`);
+        const queryString = query.length ? `?${query.join("&")}` : "";
+
+        const token = localStorage.getItem("token");
+        if (!token) throw new Error("No auth token");
+
+        const res = await fetch(`/api/predictions${queryString}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
         if (res.ok) {
           const data = await res.json();
-          console.log("Fetched predictions:", data.predictions);
-          setPredictions(data.predictions);
+          if (Array.isArray(data.predictions)) {
+            setPredictions(data.predictions);
+          } else {
+            setPredictions([]);
+          }
         } else {
-          console.error(
-            "Failed to fetch predictions",
-            res.status,
-            await res.text()
-          );
+          setPredictions([]);
+          console.error("Failed to fetch predictions:", await res.text());
         }
       } catch (err) {
         console.error("Error fetching predictions:", err);
+        setPredictions([]);
       } finally {
         setLoading(false);
       }
     }
 
-    fetchPredictions();
-  }, [fixtureId]);
+    if (fixtureId || userId) {
+      fetchPredictions();
+    }
+  }, [fixtureId, userId]);
 
-  if (loading)
-    return <p className="text-center mt-4">Loading predictions...</p>;
+  if (loading) return <p className="text-center mt-4">Loading predictions...</p>;
+  if (!predictions.length)
+    return <p className="text-center mt-4 text-gray-400">No predictions yet.</p>;
 
   return (
-    <div className="mt-6 w-full mx-auto space-y-4"> {/* Added mx-auto for centering */}
+    <div className="mt-6 w-full mx-auto space-y-4">
       <h2 className="font-semibold text-center">Predictions</h2>
       <div className="grid grid-cols-1 gap-4">
         {predictions.map((prediction, index) => (
           <div
-  key={index}
-  className="border w-full  rounded-xl p-4 shadow-sm flex items-center justify-between bg-gray-800 text-gray-200"
->
-            {/* User Info Section: Vertically aligned profile pic and name */}
-            <div className="flex flex-col items-center gap-2"> {/* Changed to flex-col and added gap */}
+            key={index}
+            className="border w-full rounded-xl p-4 shadow-sm flex items-center justify-between bg-gray-800 text-gray-200"
+          >
+            {/* User Info Section */}
+            <div className="flex flex-col items-center gap-2">
               {prediction.userAvatar ? (
                 <Image
                   src={prediction.userAvatar}
                   alt={`${prediction.userName || prediction.userId}`}
                   width={40}
                   height={40}
-                  className="rounded-full" // Changed to rounded-full for typical avatar look
+                  className="rounded-full"
                 />
               ) : (
-                <div className="w-10 h-10 bg-gray-600 rounded-full flex items-center justify-center text-sm text-gray-300"> {/* Adjusted background/text color */}
+                <div className="w-10 h-10 bg-gray-600 rounded-full flex items-center justify-center text-sm text-gray-300">
                   ?
                 </div>
               )}
-              <p className="font-medium text-sm text-center"> {/* Centered text under avatar */}
+              <p className="font-medium text-sm text-center">
                 {prediction.userName || prediction.userId}
               </p>
             </div>
 
-            {/* Score and Outcome Section: Vertically aligned score and outcome */}
-            <div className="flex flex-col items-center"> {/* Flex column for score and outcome */}
-              <p className="text-m text-lg"> {/* Larger for score */}
+            {/* Score and Outcome Section */}
+            <div className="flex flex-col items-center">
+              <p className="text-lg">
                 {prediction.homeScore} - {prediction.awayScore}
               </p>
-              <p className="text-m text-gray-400"> {/* Smaller for outcome, slightly lighter color */}
-                ({prediction.outcome})
-              </p>
+              <p className="text-m text-gray-400">({prediction.outcome})</p>
             </div>
 
-            {/* Odds & Points Section: Vertically aligned values under labels */}
-            <div className="flex flex-col items-end"> {/* Align items to the end (right) */}
-              <p className="text-sm text-gray-400">Odds</p> {/* Smaller text for label */}
-              <p className="font-semibold text-sm">{prediction.odds}</p> {/* Slightly smaller for value */}
-              <p className="text-sm text-gray-400 mt-1">Points</p> {/* Smaller text for label, with margin-top */}
-              <p className="font-semibold text-sm"> {/* Slightly smaller for value */}
+            {/* Odds & Points Section */}
+            <div className="flex flex-col items-end">
+              <p className="text-sm text-gray-400">Odds</p>
+              <p className="font-semibold text-sm">{prediction.odds}</p>
+              <p className="text-sm text-gray-400 mt-1">Points</p>
+              <p className="font-semibold text-sm">
                 {prediction.points !== undefined && prediction.points !== null
                   ? prediction.points
                   : "--"}

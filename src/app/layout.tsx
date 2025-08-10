@@ -15,10 +15,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>
+      <body className="bg-gray-100 text-gray-900">
         <UserProvider>
-          <Header />
-        <main className="pt-14">{children}</main>
+          <main className="pt-14">
+            <Header />
+            {children}
+          </main>
         </UserProvider>
       </body>
     </html>

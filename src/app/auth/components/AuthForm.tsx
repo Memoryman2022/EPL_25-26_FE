@@ -6,29 +6,41 @@ import * as z from "zod";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useUser } from "@/app/auth/components/Context"; // adjust path as needed
+import type { FieldErrors } from "react-hook-form";
 
-const schema = z.object({
+const baseSchema = z.object({
   email: z.string().email(),
   password: z.string().min(6),
 });
 
-type FormData = z.infer<typeof schema>;
+const registerSchema = baseSchema.extend({
+  userName: z.string().min(3, "Username must be at least 3 characters"),
+});
 
-export default function AuthForm({ type }: { type: "login" | "register" }) {
+type LoginFormData = z.infer<typeof baseSchema>;
+type RegisterFormData = z.infer<typeof registerSchema>;
+
+type Props = {
+  type: "login" | "register";
+};
+
+export default function AuthForm({ type }: Props) {
+  const schema = type === "register" ? registerSchema : baseSchema;
+
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<FormData>({
+  } = useForm<LoginFormData | RegisterFormData>({
     resolver: zodResolver(schema),
   });
 
   const router = useRouter();
-  const { setUser } = useUser(); // <-- get setUser from context
+  const { setUser } = useUser();
 
   const [loading, setLoading] = useState(false);
 
-  const onSubmit = async (data: FormData) => {
+  const onSubmit = async (data: any) => {
     setLoading(true);
     try {
       const res = await fetch(`/api/auth/${type}`, {
@@ -50,7 +62,7 @@ export default function AuthForm({ type }: { type: "login" | "register" }) {
       localStorage.setItem("token", result.token);
       localStorage.setItem("userId", result.user._id);
 
-      router.push(`/users/${result.user._id}`);
+      router.push(`/profile`);
       alert(`${type} successful!`);
     } catch (err: any) {
       alert(err.message);
@@ -65,6 +77,24 @@ export default function AuthForm({ type }: { type: "login" | "register" }) {
         onSubmit={handleSubmit(onSubmit)}
         className="w-full max-w-md backdrop-blur-md p-8 rounded-xl shadow-lg flex flex-col space-y-4"
       >
+       {type === "register" && (
+  <>
+    <input
+      type="text"
+      placeholder="Username"
+      {...register("userName")}
+      className="w-full border border-gray-300 p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+    />
+    {/* Cast errors to RegisterFormData errors */}
+    {(errors as FieldErrors<RegisterFormData>).userName && (
+      <p className="text-red-500 text-sm">
+        {(errors as FieldErrors<RegisterFormData>).userName?.message}
+      </p>
+    )}
+  </>
+)}
+
+
         <input
           type="email"
           placeholder="Email"
