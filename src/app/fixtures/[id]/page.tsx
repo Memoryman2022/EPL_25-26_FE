@@ -68,6 +68,7 @@ function FixturePage({ fixture, userId }: Props) {
 
       {/* Prediction form */}
       <MatchPredictionForm fixture={fixture} userId={userId} />
+      
 
       
     </div>

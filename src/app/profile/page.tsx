@@ -78,13 +78,13 @@ export default function UserProfile() {
         </div>
       </div>
 
-      {/* ✅ Show logged-in user's predictions */}
-      {authUser && (
+      ✅ Show logged-in user's predictions
+      {/* {authUser && (
         <div className="mt-8">
           <h3 className="text-xl font-bold mb-4">My Predictions</h3>
-          <UserPredictionsList userId={authUser._id} />
+          <UserPredictionsList />
         </div>
-      )}
+      )} */}
     </div>
   );
 }

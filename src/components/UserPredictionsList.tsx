@@ -15,11 +15,10 @@ type Prediction = {
 };
 
 type Props = {
-  fixtureId?: number; // optional
-  userId?: string; // optional — if you want to fetch for any user
+  fixtureId: number; // required now
 };
 
-export default function UserPredictionsList({ fixtureId, userId }: Props) {
+export default function UserPredictionsList({ fixtureId }: Props) {
   const [predictions, setPredictions] = useState<Prediction[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -27,47 +26,35 @@ export default function UserPredictionsList({ fixtureId, userId }: Props) {
     async function fetchPredictions() {
       setLoading(true);
       try {
-        let query = [];
-        if (fixtureId) query.push(`fixtureId=${fixtureId}`);
-
-        // For the logged-in user, no userId query needed, API gets userId from token
-        // For others, userId query can be appended (if allowed by API)
-        if (userId) query.push(`userId=${userId}`);
-        const queryString = query.length ? `?${query.join("&")}` : "";
-
         const token = localStorage.getItem("token");
         if (!token) throw new Error("No auth token");
 
-        const res = await fetch(`/api/predictions${queryString}`, {
+        const res = await fetch(`/api/predictions?fixtureId=${fixtureId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
-        if (res.ok) {
-          const data = await res.json();
-          if (Array.isArray(data.predictions)) {
-            setPredictions(data.predictions);
-          } else {
-            setPredictions([]);
-          }
-        } else {
-          setPredictions([]);
+        if (!res.ok) {
           console.error("Failed to fetch predictions:", await res.text());
+          setPredictions([]);
+          setLoading(false);
+          return;
         }
-      } catch (err) {
-        console.error("Error fetching predictions:", err);
+
+        const data = await res.json();
+        setPredictions(Array.isArray(data.predictions) ? data.predictions : []);
+      } catch (error) {
+        console.error("Error fetching predictions:", error);
         setPredictions([]);
       } finally {
         setLoading(false);
       }
     }
 
-    if (fixtureId || userId) {
-      fetchPredictions();
-    }
-  }, [fixtureId, userId]);
+    fetchPredictions();
+  }, [fixtureId]);
 
   if (loading) return <p className="text-center mt-4">Loading predictions...</p>;
-  if (!predictions.length)
+  if (predictions.length === 0)
     return <p className="text-center mt-4 text-gray-400">No predictions yet.</p>;
 
   return (
@@ -79,12 +66,12 @@ export default function UserPredictionsList({ fixtureId, userId }: Props) {
             key={index}
             className="border w-full rounded-xl p-4 shadow-sm flex items-center justify-between bg-gray-800 text-gray-200"
           >
-            {/* User Info Section */}
+            {/* User Info */}
             <div className="flex flex-col items-center gap-2">
               {prediction.userAvatar ? (
                 <Image
                   src={prediction.userAvatar}
-                  alt={`${prediction.userName || prediction.userId}`}
+                  alt={prediction.userName || prediction.userId}
                   width={40}
                   height={40}
                   className="rounded-full"
@@ -99,7 +86,7 @@ export default function UserPredictionsList({ fixtureId, userId }: Props) {
               </p>
             </div>
 
-            {/* Score and Outcome Section */}
+            {/* Score & Outcome */}
             <div className="flex flex-col items-center">
               <p className="text-lg">
                 {prediction.homeScore} - {prediction.awayScore}
@@ -107,15 +94,13 @@ export default function UserPredictionsList({ fixtureId, userId }: Props) {
               <p className="text-m text-gray-400">({prediction.outcome})</p>
             </div>
 
-            {/* Odds & Points Section */}
+            {/* Odds & Points */}
             <div className="flex flex-col items-end">
               <p className="text-sm text-gray-400">Odds</p>
               <p className="font-semibold text-sm">{prediction.odds}</p>
               <p className="text-sm text-gray-400 mt-1">Points</p>
               <p className="font-semibold text-sm">
-                {prediction.points !== undefined && prediction.points !== null
-                  ? prediction.points
-                  : "--"}
+                {prediction.points != null ? prediction.points : "--"}
               </p>
             </div>
           </div>
