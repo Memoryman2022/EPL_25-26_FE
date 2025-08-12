@@ -122,6 +122,18 @@ export async function POST(req: Request) {
     const client = await clientPromise;
     const db = client.db("EPL2025");
 
+    // Check if prediction already exists for this user and fixture
+    const existing = await db.collection("predictions").findOne({
+      fixtureId,
+      userId,
+    });
+    if (existing) {
+      return NextResponse.json(
+        { error: "Prediction already exists for this fixture and user." },
+        { status: 409 }
+      );
+    }
+
     const result = await db.collection("predictions").insertOne({
       fixtureId,
       userId,

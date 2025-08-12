@@ -193,7 +193,7 @@ export default function MatchPredictionForm({ fixture, userId }: Props) {
       </form>
 
       {/* Always render other users' predictions for testing/styling */}
-      <UserPredictionsList fixtureId={fixture.id} />
+      {/* <UserPredictionsList mode="fixture" fixtureId={fixture.id} /> */}
     </>
   );
 }
