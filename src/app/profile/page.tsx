@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import axios from "axios";
 import Image from "next/image";
 import { useUser } from "@/app/auth/components/Context";
+import { api } from "@/lib/api";
 import UserPredictionsList from "@/components/UserPredictionsList";
 
 type User = {
@@ -35,7 +35,7 @@ export default function UserProfile() {
 
     const fetchUser = async () => {
       try {
-        const { data } = await axios.get<User[]>("/api/users");
+        const data = await api.get<User[]>("/api/users");
 
         const sorted = data
           .sort((a, b) => b.score - a.score)
@@ -70,14 +70,21 @@ export default function UserProfile() {
             className="rounded-lg"
           />
           <div className="flex flex-col space-y-2">
-            <p><strong>Position:</strong> {user.position}</p>
-            <p><strong>Score:</strong> {user.score}</p>
-            <p><strong>Correct Scores:</strong> {user.correctScores}</p>
-            <p><strong>Correct Outcomes:</strong> {user.correctOutcomes}</p>
+            <p>
+              <strong>Position:</strong> {user.position}
+            </p>
+            <p>
+              <strong>Score:</strong> {user.score}
+            </p>
+            <p>
+              <strong>Correct Scores:</strong> {user.correctScores}
+            </p>
+            <p>
+              <strong>Correct Outcomes:</strong> {user.correctOutcomes}
+            </p>
           </div>
         </div>
       </div>
-
       ✅ Show logged-in user's predictions
       {/* {authUser && (
         <div className="mt-8">

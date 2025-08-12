@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import axios from "axios";
 import Image from "next/image";
 import Link from "next/link";
+import { api } from "@/lib/api";
 
 type User = {
   _id: string;
@@ -31,18 +31,17 @@ export default function Leaderboard({
 
   const fetchUsers = async () => {
     try {
-      const { data } = await axios.get(`/api/users`);
+      const data = await api.get(`/api/users`);
       const sorted = data.sort((a: User, b: User) => b.score - a.score);
 
       const withPositions = sorted.map((user: User, i: number) => ({
-  ...user,
-  position: i + 1,
-  previousPosition: user.previousPosition || i + 1,
-  score: user.score || 0,
-  correctScores: user.correctScores || 0,
-  correctOutcomes: user.correctOutcomes || 0,
-}));
-
+        ...user,
+        position: i + 1,
+        previousPosition: user.previousPosition || i + 1,
+        score: user.score || 0,
+        correctScores: user.correctScores || 0,
+        correctOutcomes: user.correctOutcomes || 0,
+      }));
 
       setUsers(withPositions);
       setPreviousUsers(withPositions);
@@ -81,30 +80,40 @@ export default function Leaderboard({
                 {user.position}
               </td>
               <td className="px-3 py-2 flex items-center gap-2">
-  <Link
-    href={`/profile?userId=${user._id}`}
-    className="flex items-center gap-2 hover:underline text-white"
-  >
-    <Image
-      src={user.profileImage || "/default-profile.png"}
-      alt={`${user.userName}'s profile picture`}
-      width={24}
-      height={24}
-      className="rounded shadow-sm"
-    />
-    {user.userName}
-  </Link>
-  {user.position &&
-    user.previousPosition &&
-    user.position < user.previousPosition && (
-      <Image src="/gifs/up.gif" alt="moved up" width={16} height={16} />
-    )}
-  {user.position &&
-    user.previousPosition &&
-    user.position > user.previousPosition && (
-      <Image src="/gifs/down.gif" alt="moved down" width={16} height={16} />
-    )}
-</td>
+                <Link
+                  href={`/profile?userId=${user._id}`}
+                  className="flex items-center gap-2 hover:underline text-white"
+                >
+                  <Image
+                    src={user.profileImage || "/default-profile.png"}
+                    alt={`${user.userName}'s profile picture`}
+                    width={24}
+                    height={24}
+                    className="rounded shadow-sm"
+                  />
+                  {user.userName}
+                </Link>
+                {user.position &&
+                  user.previousPosition &&
+                  user.position < user.previousPosition && (
+                    <Image
+                      src="/gifs/up.gif"
+                      alt="moved up"
+                      width={16}
+                      height={16}
+                    />
+                  )}
+                {user.position &&
+                  user.previousPosition &&
+                  user.position > user.previousPosition && (
+                    <Image
+                      src="/gifs/down.gif"
+                      alt="moved down"
+                      width={16}
+                      height={16}
+                    />
+                  )}
+              </td>
 
               <td className="px-3 py-2 text-center">{user.correctScores}</td>
               <td className="px-3 py-2 text-center">{user.correctOutcomes}</td>

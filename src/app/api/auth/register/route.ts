@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import clientPromise from "@/lib/mongodb";
 import bcrypt from "bcrypt";
+import { generateToken } from "@/lib/jwt";
 
 export async function POST(req: Request) {
   try {
@@ -22,7 +23,10 @@ export async function POST(req: Request) {
 
     const existingUser = await db.collection("users").findOne({ email });
     if (existingUser) {
-      return NextResponse.json({ error: "User already exists" }, { status: 409 });
+      return NextResponse.json(
+        { error: "User already exists" },
+        { status: 409 }
+      );
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -46,13 +50,23 @@ export async function POST(req: Request) {
       _id: result.insertedId.toString(),
       userName: userName.trim(),
       email,
+      role: "user",
     };
 
-    const fakeToken = "some-fake-token"; // replace with real JWT if needed
+    // Generate proper JWT token
+    const token = generateToken({
+      userId: result.insertedId.toString(),
+      email,
+      userName: userName.trim(),
+      role: "user",
+    });
 
-    return NextResponse.json({ user: newUser, token: fakeToken }, { status: 201 });
+    return NextResponse.json({ user: newUser, token }, { status: 201 });
   } catch (error) {
     console.error(error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal Server Error" },
+      { status: 500 }
+    );
   }
 }

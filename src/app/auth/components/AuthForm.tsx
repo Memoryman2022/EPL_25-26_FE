@@ -61,6 +61,9 @@ export default function AuthForm({ type }: Props) {
       setUser(result.user);
       localStorage.setItem("token", result.token);
       localStorage.setItem("userId", result.user._id);
+      localStorage.setItem("userEmail", result.user.email);
+      localStorage.setItem("userName", result.user.userName || "");
+      localStorage.setItem("userRole", result.user.role || "user");
 
       router.push(`/profile`);
       alert(`${type} successful!`);
@@ -77,23 +80,22 @@ export default function AuthForm({ type }: Props) {
         onSubmit={handleSubmit(onSubmit)}
         className="w-full max-w-md backdrop-blur-md p-8 rounded-xl shadow-lg flex flex-col space-y-4"
       >
-       {type === "register" && (
-  <>
-    <input
-      type="text"
-      placeholder="Username"
-      {...register("userName")}
-      className="w-full border border-gray-300 p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-    />
-    {/* Cast errors to RegisterFormData errors */}
-    {(errors as FieldErrors<RegisterFormData>).userName && (
-      <p className="text-red-500 text-sm">
-        {(errors as FieldErrors<RegisterFormData>).userName?.message}
-      </p>
-    )}
-  </>
-)}
-
+        {type === "register" && (
+          <>
+            <input
+              type="text"
+              placeholder="Username"
+              {...register("userName")}
+              className="w-full border border-gray-300 p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            {/* Cast errors to RegisterFormData errors */}
+            {(errors as FieldErrors<RegisterFormData>).userName && (
+              <p className="text-red-500 text-sm">
+                {(errors as FieldErrors<RegisterFormData>).userName?.message}
+              </p>
+            )}
+          </>
+        )}
 
         <input
           type="email"
