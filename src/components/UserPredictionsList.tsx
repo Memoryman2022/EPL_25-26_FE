@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
+import { api } from "@/lib/api";
 
 type Prediction = {
   userId: string;
@@ -26,21 +27,7 @@ export default function UserPredictionsList({ fixtureId }: Props) {
     async function fetchPredictions() {
       setLoading(true);
       try {
-        const token = localStorage.getItem("token");
-        if (!token) throw new Error("No auth token");
-
-        const res = await fetch(`/api/predictions?fixtureId=${fixtureId}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-
-        if (!res.ok) {
-          console.error("Failed to fetch predictions:", await res.text());
-          setPredictions([]);
-          setLoading(false);
-          return;
-        }
-
-        const data = await res.json();
+        const data = await api.get(`/api/predictions?fixtureId=${fixtureId}`);
         setPredictions(Array.isArray(data.predictions) ? data.predictions : []);
       } catch (error) {
         console.error("Error fetching predictions:", error);
@@ -53,9 +40,12 @@ export default function UserPredictionsList({ fixtureId }: Props) {
     fetchPredictions();
   }, [fixtureId]);
 
-  if (loading) return <p className="text-center mt-4">Loading predictions...</p>;
+  if (loading)
+    return <p className="text-center mt-4">Loading predictions...</p>;
   if (predictions.length === 0)
-    return <p className="text-center mt-4 text-gray-400">No predictions yet.</p>;
+    return (
+      <p className="text-center mt-4 text-gray-400">No predictions yet.</p>
+    );
 
   return (
     <div className="mt-6 w-full mx-auto space-y-4">

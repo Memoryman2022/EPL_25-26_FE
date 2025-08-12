@@ -1,11 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import axios from "axios";
 import Image from "next/image";
 import { teamNameToImageMap } from "../utils/teamLogos";
 import ResponsiveTeamName from "../utils/responsive-team-names";
 import Link from "next/link";
+import { api } from "@/lib/api";
 
 // import '@/styles/EPL_Table.css'; // move CSS here from `css/` to `styles/`
 
@@ -48,9 +48,8 @@ export default function EPLTable() {
   useEffect(() => {
     const fetchStandings = async () => {
       try {
-        const response = await axios.get("/api/standings");
-        const standingsData: Standing[] =
-          response.data?.standings?.[0]?.table || [];
+        const response = await api.get("/api/standings");
+        const standingsData: Standing[] = response?.standings?.[0]?.table || [];
 
         setStandings(standingsData);
       } catch (err: any) {

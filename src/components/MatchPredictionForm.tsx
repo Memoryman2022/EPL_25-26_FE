@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import UserPredictionsList from "@/components/UserPredictionsList";
 import { useDebounce } from "@/app/utils/useDebounce"; // Ensure this path is correct
+import { api } from "@/lib/api";
 
 type Prediction = {
   _id?: string;
@@ -36,7 +37,9 @@ export default function MatchPredictionForm({ fixture, userId }: Props) {
   const [awayScore, setAwayScore] = useState<number | "">("");
   const [submitting, setSubmitting] = useState(false);
   const [odds, setOdds] = useState<string>("N/A");
-  const [existingPrediction, setExistingPrediction] = useState<Prediction | undefined>();
+  const [existingPrediction, setExistingPrediction] = useState<
+    Prediction | undefined
+  >();
 
   // Use the debounce hooks for home and away scores
   const debouncedHomeScore = useDebounce(homeScore, 500); // 500ms delay
@@ -45,14 +48,15 @@ export default function MatchPredictionForm({ fixture, userId }: Props) {
   // Fetch existing prediction if it exists
   useEffect(() => {
     async function fetchPrediction() {
-      const res = await fetch(`/api/predictions?fixtureId=${fixture.id}&userId=${userId}`);
-      if (res.ok) {
-        const data = await res.json();
+      try {
+        const data = await api.get(`/api/predictions?fixtureId=${fixture.id}`);
         setExistingPrediction(data.prediction || undefined);
         if (data.prediction) {
           setHomeScore(data.prediction.homeScore);
           setAwayScore(data.prediction.awayScore);
         }
+      } catch (error) {
+        console.error("Error fetching prediction:", error);
       }
     }
     fetchPrediction();
@@ -69,13 +73,10 @@ export default function MatchPredictionForm({ fixture, userId }: Props) {
 
       try {
         // *** CRITICAL CORRECTION HERE: Use debounced values in the fetch URL ***
-        const res = await fetch(`/api/odds?home=${debouncedHomeScore}&away=${debouncedAwayScore}`);
-        if (res.ok) {
-          const data = await res.json();
-          setOdds(data.odds || "N/A");
-        } else {
-          setOdds("N/A");
-        }
+        const data = await api.get(
+          `/api/odds?home=${debouncedHomeScore}&away=${debouncedAwayScore}`
+        );
+        setOdds(data.odds || "N/A");
       } catch (error) {
         console.error("Error fetching odds:", error);
         setOdds("N/A");
@@ -107,18 +108,15 @@ export default function MatchPredictionForm({ fixture, userId }: Props) {
           : "draw",
     };
 
-    const res = await fetch("/api/predictions", {
-      method: existingPrediction ? "PUT" : "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(prediction),
-    });
+    try {
+      const saved = existingPrediction
+        ? await api.put("/api/predictions", prediction)
+        : await api.post("/api/predictions", prediction);
 
-    if (res.ok) {
-      const saved = await res.json();
       setExistingPrediction(saved);
       // IMPORTANT: Replace alert() with a custom modal or toast notification
       alert("Prediction saved!");
-    } else {
+    } catch (error) {
       // IMPORTANT: Replace alert() with a custom modal or toast notification
       alert("Failed to save prediction.");
     }
@@ -128,7 +126,10 @@ export default function MatchPredictionForm({ fixture, userId }: Props) {
 
   return (
     <>
-      <form onSubmit={handleSubmit} className="space-y-4 w-full max-w-sm mx-auto">
+      <form
+        onSubmit={handleSubmit}
+        className="space-y-4 w-full max-w-sm mx-auto"
+      >
         <div className="flex items-center justify-center gap-6">
           <div className="flex flex-col items-center flex-1">
             <input
@@ -136,7 +137,11 @@ export default function MatchPredictionForm({ fixture, userId }: Props) {
               id="homeScore"
               className="w-16 bg-gray-800 text-center border rounded p-1"
               value={homeScore}
-              onChange={(e) => setHomeScore(e.target.value === "" ? "" : Number(e.target.value))}
+              onChange={(e) =>
+                setHomeScore(
+                  e.target.value === "" ? "" : Number(e.target.value)
+                )
+              }
             />
           </div>
 
@@ -148,7 +153,11 @@ export default function MatchPredictionForm({ fixture, userId }: Props) {
               id="awayScore"
               className="w-16 bg-gray-800 text-center border rounded p-1"
               value={awayScore}
-              onChange={(e) => setAwayScore(e.target.value === "" ? "" : Number(e.target.value))}
+              onChange={(e) =>
+                setAwayScore(
+                  e.target.value === "" ? "" : Number(e.target.value)
+                )
+              }
             />
           </div>
         </div>
@@ -171,7 +180,11 @@ export default function MatchPredictionForm({ fixture, userId }: Props) {
           className="bg-black text-white mt-2 rounded-full disabled:opacity-50 mx-auto block relative w-32 h-10"
         >
           <Image
-            src={submitting || existingPrediction ? "/icons/lock.png" : "/icons/predict.png"}
+            src={
+              submitting || existingPrediction
+                ? "/icons/lock.png"
+                : "/icons/predict.png"
+            }
             alt={submitting || existingPrediction ? "Locked" : "Predict"}
             fill
             style={{ objectFit: "contain" }}
@@ -180,8 +193,7 @@ export default function MatchPredictionForm({ fixture, userId }: Props) {
       </form>
 
       {/* Always render other users' predictions for testing/styling */}
-     <UserPredictionsList fixtureId={fixture.id} />
-
+      <UserPredictionsList fixtureId={fixture.id} />
     </>
   );
 }
