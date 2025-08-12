@@ -5,6 +5,7 @@ import Image from "next/image";
 import UserPredictionsList from "@/components/UserPredictionsList";
 import { useDebounce } from "@/app/utils/useDebounce"; // Ensure this path is correct
 import { api } from "@/lib/api";
+import { calculateFixtureOdds } from "@/app/utils/scoring_matrix";
 
 type Prediction = {
   _id?: string;
@@ -62,30 +63,20 @@ export default function MatchPredictionForm({ fixture, userId }: Props) {
     fetchPrediction();
   }, [fixture.id, userId]);
 
-  // Fetch odds dynamically when debounced scores change
+  // Calculate odds using scoring_matrix.ts
   useEffect(() => {
-    const fetchOdds = async () => {
-      // Use the debounced values for the condition
-      if (debouncedHomeScore === "" || debouncedAwayScore === "") {
-        setOdds("N/A");
-        return;
-      }
-
-      try {
-        // *** CRITICAL CORRECTION HERE: Use debounced values in the fetch URL ***
-        const data = await api.get(
-          `/api/odds?home=${debouncedHomeScore}&away=${debouncedAwayScore}`
-        );
-        setOdds(data.odds || "N/A");
-      } catch (error) {
-        console.error("Error fetching odds:", error);
-        setOdds("N/A");
-      }
-    };
-
-    fetchOdds();
-    // The dependency array now correctly uses the debounced values
-  }, [debouncedHomeScore, debouncedAwayScore]);
+    if (fixture.homeTeam.name && fixture.awayTeam.name) {
+      const oddsObj = calculateFixtureOdds(
+        fixture.homeTeam.name,
+        fixture.awayTeam.name
+      );
+      setOdds(
+        `Home: ${oddsObj.homeWinOdds} | Draw: ${oddsObj.drawOdds} | Away: ${oddsObj.awayWinOdds}`
+      );
+    } else {
+      setOdds("N/A");
+    }
+  }, [fixture.homeTeam.name, fixture.awayTeam.name]);
 
   // Submit the prediction
   const handleSubmit = async (e: React.FormEvent) => {
