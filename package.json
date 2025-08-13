@@ -28,6 +28,7 @@
     "@types/bcrypt": "^6.0.0",
     "@types/json-schema": "^7.0.15",
     "@types/jsonwebtoken": "^9.0.10",
+    "@types/mathjs": "^9.4.1",
     "@types/moment": "^2.11.29",
     "@types/node": "^20",
     "@types/react": "^19",

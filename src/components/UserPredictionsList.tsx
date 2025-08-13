@@ -15,30 +15,51 @@ type Prediction = {
   points?: number | null;
 };
 
-type Props = {
-  fixtureId: number; // required now
-};
+type Props =
+  | { mode: "fixture"; fixtureId: number }
+  | { mode: "profile"; userId: string };
 
-export default function UserPredictionsList({ fixtureId }: Props) {
+export default function UserPredictionsList(props: Props) {
   const [predictions, setPredictions] = useState<Prediction[]>([]);
   const [loading, setLoading] = useState(true);
+  const [userMap, setUserMap] = useState<Record<string, string>>({});
 
   useEffect(() => {
-    async function fetchPredictions() {
+    async function fetchPredictionsAndUsers() {
       setLoading(true);
       try {
-        const data = await api.get(`/api/predictions?fixtureId=${fixtureId}`);
-        setPredictions(Array.isArray(data.predictions) ? data.predictions : []);
+        let data;
+        if (props.mode === "fixture" && "fixtureId" in props) {
+          data = await api.get(`/api/predictions?fixtureId=${props.fixtureId}`);
+        } else if (props.mode === "profile" && "userId" in props) {
+          data = await api.get(`/api/predictions?userId=${props.userId}`);
+        }
+        const predictionsArr = Array.isArray(data?.predictions)
+          ? data.predictions
+          : [];
+        setPredictions(predictionsArr);
+
+        // Fetch users
+        const users = await api.get("/api/users");
+        const map: Record<string, string> = {};
+        users.forEach((user: any) => {
+          map[user._id] = user.userName || "Unknown";
+        });
+        setUserMap(map);
       } catch (error) {
-        console.error("Error fetching predictions:", error);
+        console.error("Error fetching predictions or users:", error);
         setPredictions([]);
+        setUserMap({});
       } finally {
         setLoading(false);
       }
     }
-
-    fetchPredictions();
-  }, [fixtureId]);
+    fetchPredictionsAndUsers();
+  }, [
+    props.mode,
+    "fixtureId" in props ? props.fixtureId : undefined,
+    "userId" in props ? props.userId : undefined,
+  ]);
 
   if (loading)
     return <p className="text-center mt-4">Loading predictions...</p>;
@@ -61,7 +82,7 @@ export default function UserPredictionsList({ fixtureId }: Props) {
               {prediction.userAvatar ? (
                 <Image
                   src={prediction.userAvatar}
-                  alt={prediction.userName || prediction.userId}
+                  alt={userMap[prediction.userId] || "Unknown"}
                   width={40}
                   height={40}
                   className="rounded-full"
@@ -72,7 +93,7 @@ export default function UserPredictionsList({ fixtureId }: Props) {
                 </div>
               )}
               <p className="font-medium text-sm text-center">
-                {prediction.userName || prediction.userId}
+                {userMap[prediction.userId] || "Unknown"}
               </p>
             </div>
 

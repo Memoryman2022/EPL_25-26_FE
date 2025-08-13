@@ -24,25 +24,56 @@ export async function GET(req: Request) {
 
   const url = new URL(req.url);
   const fixtureId = url.searchParams.get("fixtureId");
-  const userId = decoded.userId; // Use userId from token instead of header
-
-  if (!fixtureId || !userId) {
-    return NextResponse.json(
-      { error: "Missing fixtureId or userId" },
-      { status: 400 }
-    );
-  }
+  const userIdQuery = url.searchParams.get("userId");
+  const userIdFromToken = decoded.userId;
 
   try {
     const client = await clientPromise;
     const db = client.db("EPL2025");
 
-    const prediction = await db.collection("predictions").findOne({
-      fixtureId: parseInt(fixtureId),
-      userId: userId,
-    });
+    // If fixtureId is provided and userIdQuery is not, return all predictions for that fixture
+    if (fixtureId && !userIdQuery) {
+      const predictions = await db
+        .collection("predictions")
+        .find({
+          fixtureId: parseInt(fixtureId),
+        })
+        .toArray();
+      return NextResponse.json({ predictions });
+    }
 
-    return NextResponse.json({ prediction });
+    // If userIdQuery is provided, return all predictions for that user
+    if (userIdQuery) {
+      // Only allow access to own predictions
+      if (userIdQuery !== userIdFromToken) {
+        return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+      }
+      const predictions = await db
+        .collection("predictions")
+        .find({
+          userId: userIdQuery,
+        })
+        .toArray();
+      return NextResponse.json({ predictions });
+    }
+
+    // If both fixtureId and userIdQuery are provided, filter by both
+    if (fixtureId && userIdQuery) {
+      if (userIdQuery !== userIdFromToken) {
+        return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+      }
+      const predictions = await db
+        .collection("predictions")
+        .find({
+          fixtureId: parseInt(fixtureId),
+          userId: userIdQuery,
+        })
+        .toArray();
+      return NextResponse.json({ predictions });
+    }
+
+    // If neither, return current user's prediction for a fixture (legacy)
+    return NextResponse.json({ predictions: [] });
   } catch (error) {
     console.error("Fetch prediction error:", error);
     return NextResponse.json(

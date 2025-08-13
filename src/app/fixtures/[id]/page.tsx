@@ -9,7 +9,7 @@ import MatchPredictionForm from "@/components/MatchPredictionForm";
 import { formatDateTime } from "../../utils/formatDate";
 import { useUser } from "@/app/auth/components/Context";
 import UserPredictionsList from "@/components/UserPredictionsList";
- // adjust the path as needed
+// adjust the path as needed
 
 type Team = {
   id: number;
@@ -68,9 +68,7 @@ function FixturePage({ fixture, userId }: Props) {
 
       {/* Prediction form */}
       <MatchPredictionForm fixture={fixture} userId={userId} />
-      
-
-      
+      <UserPredictionsList mode="fixture" fixtureId={fixture.id} />
     </div>
   );
 }
@@ -112,7 +110,8 @@ export default function FixturePageWrapper() {
 
   if (!user || !user._id) {
     return (
-      <div className="mb-2 font-semibold text-xl pt-50 text-center">You must be logged in to view this page.
+      <div className="mb-2 font-semibold text-xl pt-50 text-center">
+        You must be logged in to view this page.
       </div>
     );
   }
