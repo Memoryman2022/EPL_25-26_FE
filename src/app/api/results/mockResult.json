@@ -2,13 +2,13 @@
   {
     "_id": "ObjectId('671e94d8513d0bb0cbede20a')",
     "fixtureId": 537785,
-    "awayScore": 2,
-    "awayTeam": "Manchester United FC",
+    "homeScore": 3,
+    "awayScore": 1,
+    "awayTeam": "Liverpool FC",
     "date": "2024-11-02T15:00:00.000+00:00",
-    "homeScore": 1,
-    "homeTeam": "Fulham FC",
-    "matchday": 11,
-    "outcome": "awayWin",
+    "homeTeam": "AFC Bournemouth",
+    "matchday": 1,
+    "outcome": "HomeWin",
     "__v": 0
   }
 ]

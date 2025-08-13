@@ -2,8 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
-import UserPredictionsList from "@/components/UserPredictionsList";
-import { useDebounce } from "@/app/utils/useDebounce"; // Ensure this path is correct
+import { useDebounce } from "@/app/utils/useDebounce";
 import { api } from "@/lib/api";
 import {
   calculatePredictionDifficulty,
@@ -13,7 +12,7 @@ import { externalToDatabaseName } from "@/lib/teamNameMapping";
 
 type Prediction = {
   _id?: string;
-  fixtureId: number;
+  fixtureId: number | string;
   userId: string;
   homeScore: number | "";
   awayScore: number | "";
@@ -41,38 +40,80 @@ export default function MatchPredictionForm({ fixture, userId }: Props) {
   const [homeScore, setHomeScore] = useState<number | "">("");
   const [awayScore, setAwayScore] = useState<number | "">("");
   const [submitting, setSubmitting] = useState(false);
+  const [checkingExisting, setCheckingExisting] = useState(true);
   const [odds, setOdds] = useState<string>("N/A");
   const [difficulty, setDifficulty] = useState<string>("");
   const [explanation, setExplanation] = useState<string>("");
-  const [existingPrediction, setExistingPrediction] = useState<
-    Prediction | undefined
-  >();
+  const [existingPrediction, setExistingPrediction] = useState<Prediction | undefined>();
 
-  // Use the debounce hooks for home and away scores
-  const debouncedHomeScore = useDebounce(homeScore, 500); // 500ms delay
-  const debouncedAwayScore = useDebounce(awayScore, 500); // 500ms delay
+  const debouncedHomeScore = useDebounce(homeScore, 500);
+  const debouncedAwayScore = useDebounce(awayScore, 500);
 
-  // Fetch existing prediction
+  // --- Fetch existing prediction (normalize every possible API shape) ---
   useEffect(() => {
-    async function fetchData() {
+    let ignore = false;
+
+    async function fetchExisting() {
+      setCheckingExisting(true);
       try {
-        // Fetch existing prediction
-        const predictionData = await api.get(
-          `/api/predictions?fixtureId=${fixture.id}`
+        // If your api client is Axios-like, this returns { data: ... }
+        const res = await api.get(
+  `/api/predictions?fixtureId=${fixture.id}&userId=${userId}`
+);
+
+        const payload = (res && "data" in res ? res.data : res) as
+          | { prediction?: Prediction; predictions?: Prediction[] }
+          | Prediction[]
+          | Prediction
+          | null
+          | undefined;
+
+        // Flatten into an array of candidates we can filter
+        let candidates: Prediction[] = [];
+
+if (Array.isArray(payload)) {
+  candidates = payload;
+} else if (payload && typeof payload === "object") {
+  if ("predictions" in payload && Array.isArray(payload.predictions)) {
+    candidates = payload.predictions;
+  } else if ("prediction" in payload && payload.prediction) {
+    candidates = [payload.prediction];
+  } else {
+    candidates = [payload as Prediction];
+  }
+}
+
+
+        const match = candidates.find(
+          (p) =>
+            Number(p.fixtureId) === Number(fixture.id) &&
+            String(p.userId) === String(userId)
         );
-        setExistingPrediction(predictionData.prediction || undefined);
-        if (predictionData.prediction) {
-          setHomeScore(predictionData.prediction.homeScore);
-          setAwayScore(predictionData.prediction.awayScore);
+
+        if (!ignore) {
+          if (match) {
+            setExistingPrediction(match);
+            // If you want to prefill the form with the previous pick:
+            if (typeof match.homeScore === "number") setHomeScore(match.homeScore);
+            if (typeof match.awayScore === "number") setAwayScore(match.awayScore);
+          } else {
+            setExistingPrediction(undefined);
+          }
         }
-      } catch (error) {
-        console.error("Error fetching data:", error);
+      } catch (err) {
+        if (!ignore) console.error("Error fetching existing prediction:", err);
+      } finally {
+        if (!ignore) setCheckingExisting(false);
       }
     }
-    fetchData();
-  }, [fixture.id, userId]);
 
-  // Calculate odds dynamically when debounced scores change
+    if (fixture?.id && userId) fetchExisting();
+    return () => {
+      ignore = true;
+    };
+  }, [fixture?.id, userId]);
+
+  // --- Calculate odds/difficulty whenever scores change ---
   useEffect(() => {
     if (debouncedHomeScore === "" || debouncedAwayScore === "") {
       setOdds("N/A");
@@ -82,7 +123,6 @@ export default function MatchPredictionForm({ fixture, userId }: Props) {
     }
 
     try {
-      // Convert external API team names to database names for ranking lookup
       const homeTeamDB = externalToDatabaseName(fixture.homeTeam.name);
       const awayTeamDB = externalToDatabaseName(fixture.awayTeam.name);
 
@@ -102,14 +142,9 @@ export default function MatchPredictionForm({ fixture, userId }: Props) {
       setDifficulty("");
       setExplanation("");
     }
-  }, [
-    debouncedHomeScore,
-    debouncedAwayScore,
-    fixture.homeTeam.name,
-    fixture.awayTeam.name,
-  ]);
+  }, [debouncedHomeScore, debouncedAwayScore, fixture.homeTeam.name, fixture.awayTeam.name]);
 
-  // Submit the prediction
+  // --- Submit the prediction (normalize response on save, too) ---
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (homeScore === "" || awayScore === "") return;
@@ -123,35 +158,40 @@ export default function MatchPredictionForm({ fixture, userId }: Props) {
       awayScore,
       odds,
       outcome:
-        homeScore > awayScore
-          ? "homeWin"
-          : homeScore < awayScore
-          ? "awayWin"
-          : "draw",
+        homeScore > awayScore ? "homeWin" : homeScore < awayScore ? "awayWin" : "draw",
     };
 
     try {
-      const saved = existingPrediction
+      const res = existingPrediction
         ? await api.put("/api/predictions", prediction)
         : await api.post("/api/predictions", prediction);
 
-      setExistingPrediction(saved);
-      // IMPORTANT: Replace alert() with a custom modal or toast notification
+      const payload = (res && "data" in res ? res.data : res) as
+        | { prediction?: Prediction }
+        | Prediction
+        | null
+        | undefined;
+
+      const saved = payload && typeof payload === "object" && "prediction" in payload
+        ? (payload as any).prediction
+        : (payload as Prediction);
+
+      if (saved) setExistingPrediction(saved);
       alert("Prediction saved!");
     } catch (error) {
-      // IMPORTANT: Replace alert() with a custom modal or toast notification
+      console.error(error);
       alert("Failed to save prediction.");
+    } finally {
+      setSubmitting(false);
     }
-
-    setSubmitting(false);
   };
+
+  const isLocked = !!existingPrediction;
+  const isDisabled = submitting || checkingExisting || isLocked;
 
   return (
     <>
-      <form
-        onSubmit={handleSubmit}
-        className="space-y-4 w-full max-w-sm mx-auto"
-      >
+      <form onSubmit={handleSubmit} className="space-y-4 w-full max-w-sm mx-auto">
         <div className="flex items-center justify-center gap-6">
           <div className="flex flex-col items-center flex-1">
             <input
@@ -159,11 +199,8 @@ export default function MatchPredictionForm({ fixture, userId }: Props) {
               id="homeScore"
               className="w-16 bg-gray-800 text-center border rounded p-1"
               value={homeScore}
-              onChange={(e) =>
-                setHomeScore(
-                  e.target.value === "" ? "" : Number(e.target.value)
-                )
-              }
+              onChange={(e) => setHomeScore(e.target.value === "" ? "" : Number(e.target.value))}
+              disabled={isLocked}
             />
           </div>
 
@@ -175,11 +212,8 @@ export default function MatchPredictionForm({ fixture, userId }: Props) {
               id="awayScore"
               className="w-16 bg-gray-800 text-center border rounded p-1"
               value={awayScore}
-              onChange={(e) =>
-                setAwayScore(
-                  e.target.value === "" ? "" : Number(e.target.value)
-                )
-              }
+              onChange={(e) => setAwayScore(e.target.value === "" ? "" : Number(e.target.value))}
+              disabled={isLocked}
             />
           </div>
         </div>
@@ -210,33 +244,25 @@ export default function MatchPredictionForm({ fixture, userId }: Props) {
               <div className="text-xs text-gray-400 mt-1">{explanation}</div>
             </div>
           ) : (
-            <span className="text-gray-100">
-              Enter a scoreline to see difficulty
-            </span>
+            <span className="text-gray-100">Enter a scoreline to see difficulty</span>
           )}
         </div>
 
         {/* Submit button */}
         <button
           type="submit"
-          disabled={submitting}
+          disabled={isDisabled}
           className="bg-black text-white mt-2 rounded-full disabled:opacity-50 mx-auto block relative w-32 h-10"
         >
           <Image
-            src={
-              submitting || existingPrediction
-                ? "/icons/lock.png"
-                : "/icons/predict.png"
-            }
-            alt={submitting || existingPrediction ? "Locked" : "Predict"}
+            src={isLocked || submitting ? "/icons/lock.png" : "/icons/predict.png"}
+            alt={isLocked || submitting ? "Locked" : "Predict"}
             fill
             style={{ objectFit: "contain" }}
+            priority
           />
         </button>
       </form>
-
-      {/* Always render other users' predictions for testing/styling */}
-      {/* <UserPredictionsList mode="fixture" fixtureId={fixture.id} /> */}
     </>
   );
 }

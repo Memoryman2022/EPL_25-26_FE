@@ -46,10 +46,12 @@ function calculatePredictionScore(
 
       // Use the static team ranking system
       const likelihoodResult = calculateOutcomeLikelihood(
-        homeTeamDB,
-        awayTeamDB,
-        predOutcome
-      );
+  homeTeamDB,
+  awayTeamDB,
+  predOutcome,
+  prediction.homeScore,
+  prediction.awayScore
+);
 
       totalPoints = likelihoodResult.points;
     }
@@ -124,20 +126,29 @@ export async function POST(request: Request) {
 
       // Update prediction with score
       const updatedPrediction = await db
-        .collection("predictions")
-        .findOneAndUpdate(
-          { _id: prediction._id },
-          {
-            $set: {
-              calculated: true,
-              points: score,
-              actualResult: actualResult,
-            },
-          },
-          { returnDocument: "after" }
-        );
+  .collection("predictions")
+  .findOneAndUpdate(
+    { _id: prediction._id },
+    {
+      $set: {
+        calculated: true,
+        points: score,
+        actualResult: actualResult,
+      },
+    },
+    { returnDocument: "after" }
+  );
 
-      updatedPredictions.push(updatedPrediction.value);
+// Only push if updatedPrediction and its value exist
+if (updatedPrediction && updatedPrediction.value !== null) {
+  updatedPredictions.push(updatedPrediction.value);
+} else {
+  console.warn(`Prediction with ID ${prediction._id} not found`);
+}
+
+
+
+
 
       // Update user's total score
       await db.collection("users").updateOne(

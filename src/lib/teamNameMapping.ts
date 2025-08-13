@@ -1,7 +1,7 @@
 // Team name mapping utility to handle differences between external API and database
 
 // External API team names (from football-data.org)
-export const EXTERNAL_API_TEAM_NAMES = {
+export const EXTERNAL_API_TEAM_NAMES: Record<string, string> = {
   "Arsenal FC": "Arsenal",
   "Aston Villa FC": "Aston Villa",
   "AFC Bournemouth": "Bournemouth",

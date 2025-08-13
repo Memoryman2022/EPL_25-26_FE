@@ -35,11 +35,12 @@ export function calculatePredictionDifficulty(
 
   // Use the static team ranking system
   const result = calculateOutcomeLikelihood(
-    homeTeamDB,
-    awayTeamDB,
-    predictedOutcome
-  );
-
+  homeTeamDB,
+  awayTeamDB,
+  predictedOutcome,
+  homeScore,
+  awayScore
+);
   // Convert likelihood to difficulty for backward compatibility
   let difficulty: "Easy" | "Medium" | "Hard";
   switch (result.likelihood) {

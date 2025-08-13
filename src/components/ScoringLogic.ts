@@ -63,9 +63,11 @@ export function calculatePredictionScore(
 
       // Use the static team ranking system
       const likelihoodResult = calculateOutcomeLikelihood(
-        homeTeamDB,
-        awayTeamDB,
-        predOutcome
+       homeTeamDB,
+  awayTeamDB,
+  predOutcome,
+  prediction.homeScore,
+  prediction.awayScore
       );
 
       totalPoints = likelihoodResult.points;

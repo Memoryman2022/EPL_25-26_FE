@@ -1,14 +1,16 @@
-import { NextResponse, NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import clientPromise from "@/lib/mongodb";
 import { ObjectId } from "mongodb";
 
 // GET /api/users/[id]
-export async function GET(
-  req: NextRequest,
-  context: { params: { id: string } }
-) {
+export async function GET(req: NextRequest) {
   try {
-    const { id } = context.params;
+    const url = new URL(req.url);
+    const id = url.pathname.split("/").pop();
+
+    if (!id || !ObjectId.isValid(id)) {
+      return NextResponse.json({ error: "Invalid user ID" }, { status: 400 });
+    }
 
     const client = await clientPromise;
     const db = client.db("EPL2025");
@@ -22,10 +24,10 @@ export async function GET(
     return NextResponse.json({
       _id: user._id.toString(),
       userName: user.userName,
-      score: user.score || 0,
-      correctScores: user.correctScores || 0,
-      correctOutcomes: user.correctOutcomes || 0,
-      profileImage: user.profileImage || null,
+      score: user.score ?? 0,
+      correctScores: user.correctScores ?? 0,
+      correctOutcomes: user.correctOutcomes ?? 0,
+      profileImage: user.profileImage ?? null,
     });
   } catch (err) {
     console.error("GET /api/users/[id] error:", err);
@@ -34,23 +36,17 @@ export async function GET(
 }
 
 // PUT /api/users/[id]
-export async function PUT(
-  req: NextRequest,
-  context: any
-) {
+export async function PUT(req: NextRequest) {
   try {
-    const params = await context.params;
-    const id = params.id;
+    const url = new URL(req.url);
+    const id = url.pathname.split("/").pop();
 
-    if (!ObjectId.isValid(id)) {
-      console.error("Invalid ObjectId:", id);
+    if (!id || !ObjectId.isValid(id)) {
       return NextResponse.json({ error: "Invalid user ID" }, { status: 400 });
     }
 
     const body = await req.json();
     const userName = body.userName?.trim();
-
-    console.log("PUT request for user:", id, "with new username:", userName);
 
     if (!userName) {
       return NextResponse.json({ error: "Missing or empty username" }, { status: 400 });
@@ -60,30 +56,27 @@ export async function PUT(
     const db = client.db("EPL2025");
 
     const result = await db.collection("users").findOneAndUpdate(
-      { _id: new ObjectId(id) },
-      { $set: { userName } },
-      { returnDocument: "after" as const }
-    );
+  { _id: new ObjectId(id) },
+  { $set: { userName } },
+  { returnDocument: "after" as const }
+);
 
-    const updatedUser = result?.value;
-    console.log("Updated user result:", updatedUser);
+if (!result || !result.value) {
+  return NextResponse.json({ error: "User update failed" }, { status: 500 });
+}
 
-    if (!updatedUser) {
-      return NextResponse.json({ error: "User update failed" }, { status: 500 });
-    }
+const updatedUser = result.value;
 
-    return NextResponse.json({
-      user: {
-        _id: updatedUser._id.toString(),
-        userName: updatedUser.userName,
-        score: updatedUser.score ?? 0,
-        correctScores: updatedUser.correctScores ?? 0,
-        correctOutcomes: updatedUser.correctOutcomes ?? 0,
-        profileImage: updatedUser.profileImage ?? null,
-      },
-    });
+return NextResponse.json({
+  _id: updatedUser._id.toString(),
+  userName: updatedUser.userName,
+  score: updatedUser.score ?? 0,
+  correctScores: updatedUser.correctScores ?? 0,
+  correctOutcomes: updatedUser.correctOutcomes ?? 0,
+  profileImage: updatedUser.profileImage ?? null,
+});
   } catch (error) {
-    console.error("Update user error:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    console.error("PUT /api/users/[id] error:", error);
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
