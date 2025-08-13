@@ -5,7 +5,11 @@ import Image from "next/image";
 import UserPredictionsList from "@/components/UserPredictionsList";
 import { useDebounce } from "@/app/utils/useDebounce"; // Ensure this path is correct
 import { api } from "@/lib/api";
-import { calculateFixtureOdds } from "@/app/utils/scoring_matrix";
+import {
+  calculatePredictionDifficulty,
+  getOddsDisplay,
+} from "@/lib/oddsEstimation";
+import { externalToDatabaseName } from "@/lib/teamNameMapping";
 
 type Prediction = {
   _id?: string;
@@ -38,6 +42,8 @@ export default function MatchPredictionForm({ fixture, userId }: Props) {
   const [awayScore, setAwayScore] = useState<number | "">("");
   const [submitting, setSubmitting] = useState(false);
   const [odds, setOdds] = useState<string>("N/A");
+  const [difficulty, setDifficulty] = useState<string>("");
+  const [explanation, setExplanation] = useState<string>("");
   const [existingPrediction, setExistingPrediction] = useState<
     Prediction | undefined
   >();
@@ -46,37 +52,62 @@ export default function MatchPredictionForm({ fixture, userId }: Props) {
   const debouncedHomeScore = useDebounce(homeScore, 500); // 500ms delay
   const debouncedAwayScore = useDebounce(awayScore, 500); // 500ms delay
 
-  // Fetch existing prediction if it exists
+  // Fetch existing prediction
   useEffect(() => {
-    async function fetchPrediction() {
+    async function fetchData() {
       try {
-        const data = await api.get(`/api/predictions?fixtureId=${fixture.id}`);
-        setExistingPrediction(data.prediction || undefined);
-        if (data.prediction) {
-          setHomeScore(data.prediction.homeScore);
-          setAwayScore(data.prediction.awayScore);
+        // Fetch existing prediction
+        const predictionData = await api.get(
+          `/api/predictions?fixtureId=${fixture.id}`
+        );
+        setExistingPrediction(predictionData.prediction || undefined);
+        if (predictionData.prediction) {
+          setHomeScore(predictionData.prediction.homeScore);
+          setAwayScore(predictionData.prediction.awayScore);
         }
       } catch (error) {
-        console.error("Error fetching prediction:", error);
+        console.error("Error fetching data:", error);
       }
     }
-    fetchPrediction();
+    fetchData();
   }, [fixture.id, userId]);
 
-  // Calculate odds using scoring_matrix.ts
+  // Calculate odds dynamically when debounced scores change
   useEffect(() => {
-    if (fixture.homeTeam.name && fixture.awayTeam.name) {
-      const oddsObj = calculateFixtureOdds(
-        fixture.homeTeam.name,
-        fixture.awayTeam.name
-      );
-      setOdds(
-        `Home: ${oddsObj.homeWinOdds} | Draw: ${oddsObj.drawOdds} | Away: ${oddsObj.awayWinOdds}`
-      );
-    } else {
+    if (debouncedHomeScore === "" || debouncedAwayScore === "") {
       setOdds("N/A");
+      setDifficulty("");
+      setExplanation("");
+      return;
     }
-  }, [fixture.homeTeam.name, fixture.awayTeam.name]);
+
+    try {
+      // Convert external API team names to database names for ranking lookup
+      const homeTeamDB = externalToDatabaseName(fixture.homeTeam.name);
+      const awayTeamDB = externalToDatabaseName(fixture.awayTeam.name);
+
+      const result = calculatePredictionDifficulty(
+        debouncedHomeScore as number,
+        debouncedAwayScore as number,
+        homeTeamDB,
+        awayTeamDB
+      );
+
+      setOdds(getOddsDisplay(result.difficulty));
+      setDifficulty(result.difficulty);
+      setExplanation(result.explanation);
+    } catch (error) {
+      console.error("Error calculating odds:", error);
+      setOdds("N/A");
+      setDifficulty("");
+      setExplanation("");
+    }
+  }, [
+    debouncedHomeScore,
+    debouncedAwayScore,
+    fixture.homeTeam.name,
+    fixture.awayTeam.name,
+  ]);
 
   // Submit the prediction
   const handleSubmit = async (e: React.FormEvent) => {
@@ -154,13 +185,34 @@ export default function MatchPredictionForm({ fixture, userId }: Props) {
         </div>
 
         {/* Odds display */}
-        <div className="text-center text-m ">
+        <div className="text-center space-y-2">
           {homeScore !== "" && awayScore !== "" ? (
-            <span>
-              Predicted odds: <span className="font-semibold">{odds}</span>
-            </span>
+            <div>
+              <div className="text-sm">
+                Difficulty:{" "}
+                <span
+                  className={`font-semibold ${
+                    difficulty === "Easy"
+                      ? "text-green-400"
+                      : difficulty === "Medium"
+                      ? "text-yellow-400"
+                      : difficulty === "Hard"
+                      ? "text-red-400"
+                      : "text-gray-400"
+                  }`}
+                >
+                  {difficulty}
+                </span>
+              </div>
+              <div className="text-xs text-gray-300">
+                Odds: <span className="font-semibold">{odds}</span>
+              </div>
+              <div className="text-xs text-gray-400 mt-1">{explanation}</div>
+            </div>
           ) : (
-            <span className="text-gray-100">Enter a scoreline to see odds</span>
+            <span className="text-gray-100">
+              Enter a scoreline to see difficulty
+            </span>
           )}
         </div>
 
