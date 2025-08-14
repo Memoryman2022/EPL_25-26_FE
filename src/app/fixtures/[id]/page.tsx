@@ -9,7 +9,6 @@ import MatchPredictionForm from "@/components/MatchPredictionForm";
 import { formatDateTime } from "../../utils/formatDate";
 import { useUser } from "@/app/auth/components/Context";
 import UserPredictionsList from "@/components/UserPredictionsList";
-// adjust the path as needed
 
 type Team = {
   id: number;
@@ -34,6 +33,8 @@ type Props = {
 
 // Main FixturePage component
 function FixturePage({ fixture, userId }: Props) {
+  const [hasUserPredicted, setHasUserPredicted] = useState(false);
+
   return (
     <div className="p-4 max-w-screen-md mx-auto flex flex-col items-center space-y-6">
       <span className="bg-gray-800 px-2 py-2 border rounded text-xl text-gray-200 font-semibold">
@@ -67,8 +68,16 @@ function FixturePage({ fixture, userId }: Props) {
       </div>
 
       {/* Prediction form */}
-      <MatchPredictionForm fixture={fixture} userId={userId} />
-      <UserPredictionsList mode="fixture" fixtureId={fixture.id} />
+      <MatchPredictionForm
+        fixture={fixture}
+        userId={userId}
+        setHasUserPredicted={setHasUserPredicted}
+      />
+      
+      {/* Conditionally render the UserPredictionsList */}
+      {hasUserPredicted && (
+        <UserPredictionsList mode="fixture" fixtureId={fixture.id} />
+      )}
     </div>
   );
 }
@@ -79,7 +88,7 @@ export default function FixturePageWrapper() {
   const [loading, setLoading] = useState(true);
   const params = useParams();
 
-  const { user } = useUser(); // assuming useUser returns { user: { _id: string, ... }, setUser: ... }
+  const { user } = useUser();
 
   useEffect(() => {
     if (typeof window !== "undefined") {
