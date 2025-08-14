@@ -94,40 +94,6 @@ export default function Header() {
                 </li>
               </>
             )}
-            <li className="mb-[20px]">
-              <button
-                className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 w-full"
-                onClick={async () => {
-                  try {
-                    const token = localStorage.getItem("token");
-                    const res = await fetch(
-                      "/api/predictions/calculate-scores",
-                      {
-                        method: "POST",
-                        headers: {
-                          "Content-Type": "application/json",
-                          Authorization: `Bearer ${token}`,
-                        },
-                      }
-                    );
-                    const data = await res.json();
-                    if (res.ok) {
-                      alert(
-                        `Scores calculated for ${data.updated} predictions.`
-                      );
-                    } else {
-                      alert(
-                        `Error: ${data.error || "Failed to calculate scores."}`
-                      );
-                    }
-                  } catch (err) {
-                    alert("Error calculating scores.");
-                  }
-                }}
-              >
-                Calculate Prediction Scores
-              </button>
-            </li>
 
             {user && (
               <>
@@ -146,39 +112,79 @@ export default function Header() {
                     Leaderboard
                   </Link>
                 </li>
-                {/* Admin-only button */}
+                {/* Admin-only buttons */}
                 {user.role === "admin" && (
-                  <li className="mb-[20px]">
-                    <button
-                      className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 w-full"
-                      onClick={async () => {
-                        try {
-                          const token = localStorage.getItem("token");
-                          const res = await fetch("/api/results/update", {
-                            method: "POST",
-                            headers: {
-                              "Content-Type": "application/json",
-                              Authorization: `Bearer ${token}`,
-                            },
-                          });
-                          const data = await res.json();
-                          if (res.ok) {
-                            alert(`Results updated: ${data.updated} matches.`);
-                          } else {
-                            alert(
-                              `Error: ${
-                                data.error || "Failed to update results."
-                              }`
-                            );
+                  <>
+                    <li className="mb-[20px]">
+                      <button
+                        className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 w-full"
+                        onClick={async () => {
+                          try {
+                            const token = localStorage.getItem("token");
+                            const res = await fetch("/api/results/update", {
+                              method: "POST",
+                              headers: {
+                                "Content-Type": "application/json",
+                                Authorization: `Bearer ${token}`,
+                              },
+                            });
+                            const data = await res.json();
+                            if (res.ok) {
+                              alert(
+                                `Results updated: ${data.updated} matches.`
+                              );
+                            } else {
+                              alert(
+                                `Error: ${
+                                  data.error || "Failed to update results."
+                                }`
+                              );
+                            }
+                          } catch (err) {
+                            alert("Error updating results.");
                           }
-                        } catch (err) {
-                          alert("Error updating results.");
-                        }
-                      }}
-                    >
-                      Update Results
-                    </button>
-                  </li>
+                        }}
+                      >
+                        Update Results
+                      </button>
+                    </li>
+                    <li className="mb-[20px]">
+                      <button
+                        className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 w-full"
+                        onClick={async () => {
+                          try {
+                            const token = localStorage.getItem("token");
+                            const res = await fetch(
+                              "/api/predictions/calculate-scores",
+                              {
+                                method: "POST",
+                                headers: {
+                                  "Content-Type": "application/json",
+                                  Authorization: `Bearer ${token}`,
+                                },
+                              }
+                            );
+                            const data = await res.json();
+                            if (res.ok) {
+                              alert(
+                                `Scores calculated for ${data.updated} predictions.`
+                              );
+                            } else {
+                              alert(
+                                `Error: ${
+                                  data.error || "Failed to calculate scores."
+                                }`
+                              );
+                            }
+                          } catch (err) {
+                            alert("Error calculating scores.");
+                          }
+                        }}
+                      >
+                        Calculate Prediction Scores
+                      </button>
+                    </li>
+                  </>
                 )}
               </>
             )}
