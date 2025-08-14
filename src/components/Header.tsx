@@ -63,7 +63,7 @@ export default function Header() {
 
       {menuOpen && (
         <nav className="bg-gray-800 border-t border-green-200">
-          <ul className="flex flex-col p-4 space-y-2 text-sm">
+          <ul className="flex flex-col text-white p-4 space-y-2 text-sm">
             {!user ? (
               <>
                 <li className="mb-[20px]">
