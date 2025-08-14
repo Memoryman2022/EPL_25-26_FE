@@ -164,7 +164,7 @@ export default function MatchPredictionForm({
             <input
               type="number"
               id="homeScore"
-              className="w-16 bg-gray-800 text-center border rounded p-1"
+              className="w-16 bg-gray-800 text-white text-center border rounded p-1"
               value={homeScore}
               onChange={(e) =>
                 setHomeScore(
@@ -180,7 +180,7 @@ export default function MatchPredictionForm({
             <input
               type="number"
               id="awayScore"
-              className="w-16 bg-gray-800 text-center border rounded p-1"
+              className="w-16 bg-gray-800 text-white text-center border rounded p-1"
               value={awayScore}
               onChange={(e) =>
                 setAwayScore(
