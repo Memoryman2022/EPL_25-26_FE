@@ -14,7 +14,7 @@ export default function Header() {
   const router = useRouter();
   const pathname = usePathname();
 
-  const { user, setUser, authLoaded } = useUser(); // <-- NEW
+  const { user, setUser, authLoaded } = useUser();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -36,14 +36,13 @@ export default function Header() {
     router.push("/auth/login");
   };
 
-  // ✅ Don't render anything auth-dependent until auth is loaded
   if (!authLoaded) return null;
 
   return (
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-transform duration-300 shadow-md ${
         showHeader ? "translate-y-0" : "-translate-y-full"
-      } bg-black`}
+      } bg-black dark:bg-gray-100 text-white dark:text-black`}
     >
       <div className="relative flex items-center justify-between p-4 max-w-screen-md mx-auto">
         <div className="absolute left-4">
@@ -62,8 +61,8 @@ export default function Header() {
       </div>
 
       {menuOpen && (
-        <nav className="bg-gray-800 border-t border-green-200">
-          <ul className="flex flex-col p-4 space-y-2 text-sm">
+        <nav className="bg-gray-800 dark:bg-gray-50 border-t border-green-200 dark:border-green-800">
+          <ul className="flex flex-col p-4 space-y-2 text-sm text-gray-100 dark:text-gray-900">
             {!user ? (
               <>
                 <li className="mb-[20px]">
