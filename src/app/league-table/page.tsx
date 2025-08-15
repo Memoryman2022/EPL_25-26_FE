@@ -45,23 +45,24 @@ export default function EPLTable() {
     points: "Points",
   });
 
-  useEffect(() => {
-    const fetchStandings = async () => {
-      try {
-        const response = await api.get("/api/standings");
-        const standingsData: Standing[] = response?.standings?.[0]?.table || [];
+useEffect(() => {
+  const fetchStandings = async () => {
+    try {
+      const response = await api.get("/api/standings");
+      const standingsData: Standing[] =
+        response.data?.standings?.[0]?.table || [];
+      setStandings(standingsData);
+    } catch (err: any) {
+      console.error("Error fetching standings:", err);
+      setError(err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-        setStandings(standingsData);
-      } catch (err: any) {
-        console.error("Error fetching standings:", err);
-        setError(err);
-      } finally {
-        setLoading(false);
-      }
-    };
+  fetchStandings();
+}, []);
 
-    fetchStandings();
-  }, []);
 
   useEffect(() => {
     const handleResize = () => {
