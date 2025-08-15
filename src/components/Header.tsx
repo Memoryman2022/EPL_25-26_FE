@@ -7,6 +7,7 @@ import Link from "next/link";
 import { Menu, X } from "lucide-react";
 import NavigationArrows from "@/app/utils/NavigationArrows";
 
+
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [showHeader, setShowHeader] = useState(true);
@@ -116,37 +117,37 @@ export default function Header() {
                 {user.role === "admin" && (
                   <>
                     <li className="mb-[20px]">
-                      <button
-                        className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 w-full"
-                        onClick={async () => {
-                          try {
-                            const token = localStorage.getItem("token");
-                            const res = await fetch("/api/results/update", {
-                              method: "POST",
-                              headers: {
-                                "Content-Type": "application/json",
-                                Authorization: `Bearer ${token}`,
-                              },
-                            });
-                            const data = await res.json();
-                            if (res.ok) {
-                              alert(
-                                `Results updated: ${data.updated} matches.`
-                              );
-                            } else {
-                              alert(
-                                `Error: ${
-                                  data.error || "Failed to update results."
-                                }`
-                              );
-                            }
-                          } catch (err) {
-                            alert("Error updating results.");
-                          }
-                        }}
-                      >
-                        Update Results
-                      </button>
+                     <button
+  className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 w-full"
+  onClick={async () => {
+    try {
+      const token = localStorage.getItem("token"); // optional auth
+
+      const res = await fetch("/api/results/update", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token ? `Bearer ${token}` : "",
+        },
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        alert(`Results updated: ${data.updated} matches.`);
+        console.log(data);
+      } else {
+        alert(`Error: ${data.error || "Failed to update results."}`);
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Error updating results.");
+    }
+  }}
+>
+  Update Results
+</button>
+
                     </li>
                     <li className="mb-[20px]">
                       <button
