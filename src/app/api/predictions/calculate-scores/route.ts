@@ -21,21 +21,31 @@ export async function POST(req: Request) {
     const results = await db.collection("results").find({}).toArray();
     let updated = 0;
 
-    const userScores: Record<string, number> = {};
+    // Track per-user stats
+    const userStats: Record<
+      string,
+      { score: number; correctScores: number; correctOutcomes: number }
+    > = {};
+
     for (const result of results) {
       // Find all predictions for this fixture
       const predictions = await db
         .collection("predictions")
         .find({ fixtureId: result.fixtureId })
         .toArray();
+
       for (const prediction of predictions) {
         let points = 0;
+        let correctScore = 0;
+        let correctOutcome = 0;
+
         // Correct score
         if (
           prediction.homeScore === result.homeScore &&
           prediction.awayScore === result.awayScore
         ) {
           points = 10;
+          correctScore = 1;
         } else if (
           // Correct outcome
           (prediction.homeScore > prediction.awayScore &&
@@ -46,26 +56,45 @@ export async function POST(req: Request) {
             result.homeScore === result.awayScore)
         ) {
           points = 5;
+          correctOutcome = 1;
         }
+
         // Update prediction with points and calculated=true
-        await db
-          .collection("predictions")
-          .updateOne(
-            { _id: prediction._id },
-            { $set: { points, calculated: true } }
-          );
-        // Track user score
-        userScores[prediction.userId] =
-          (userScores[prediction.userId] || 0) + points;
+        await db.collection("predictions").updateOne(
+          { _id: prediction._id },
+          { $set: { points, calculated: true } }
+        );
+
+        // Initialize user stats if not exist
+        if (!userStats[prediction.userId]) {
+          userStats[prediction.userId] = {
+            score: 0,
+            correctScores: 0,
+            correctOutcomes: 0,
+          };
+        }
+
+        // Accumulate user stats
+        userStats[prediction.userId].score += points;
+        userStats[prediction.userId].correctScores += correctScore;
+        userStats[prediction.userId].correctOutcomes += correctOutcome;
+
         updated++;
       }
     }
 
-    // Update each user's total score
-    for (const [userId, score] of Object.entries(userScores)) {
-      await db
-        .collection("users")
-        .updateOne({ _id: new ObjectId(userId) }, { $inc: { score } });
+    // Update each user's totals in the DB
+    for (const [userId, stats] of Object.entries(userStats)) {
+      await db.collection("users").updateOne(
+        { _id: new ObjectId(userId) },
+        {
+          $inc: {
+            score: stats.score,
+            correctScores: stats.correctScores,
+            correctOutcomes: stats.correctOutcomes,
+          },
+        }
+      );
     }
 
     return NextResponse.json({ updated });
