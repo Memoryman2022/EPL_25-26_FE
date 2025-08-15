@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import clientPromise from "@/lib/mongodb";
 
-// You may want to store your API key securely
 const FOOTBALL_API_URL =
   "https://api.football-data.org/v4/competitions/2021/matches?status=FINISHED";
 const API_KEY = process.env.FOOTBALL_DATA_API_KEY;
@@ -17,27 +16,30 @@ export async function POST(req: Request) {
   // TODO: Add proper JWT verification and admin check
 
   try {
-    // Use mock data for local testing
-    const fs = await import("fs/promises");
-    const path = await import("path");
-    const mockPath = path.join(
-      process.cwd(),
-      "src/app/api/results/mockResult.json"
-    );
-    const mockContent = await fs.readFile(mockPath, "utf-8");
-    const mockData = JSON.parse(mockContent);
+    // Fetch live data from the Football API
+    const response = await fetch(FOOTBALL_API_URL, {
+      headers: {
+        "X-Auth-Token": API_KEY || "",
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Football API error: ${response.statusText}`);
+    }
+
+    const apiData = await response.json();
+    const matches = apiData.matches || [];
 
     const client = await clientPromise;
     const db = client.db("EPL2025");
     let updated = 0;
 
-    for (const match of mockData) {
-      // Remove _id and __v if present
+    for (const match of matches) {
       const { _id, __v, ...resultDoc } = match;
       await db
         .collection("results")
         .updateOne(
-          { fixtureId: resultDoc.fixtureId },
+          { fixtureId: resultDoc.id }, // Assuming `id` is the fixtureId equivalent
           { $set: resultDoc },
           { upsert: true }
         );
