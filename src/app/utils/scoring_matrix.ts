@@ -51,11 +51,7 @@ const TEAM_RANKS_PRE_SEASON: TeamRanks = {
   "Burnley FC": 19,
   "Sunderland AFC": 20,
 };
-// --- 5. ODDS CALCULATION FUNCTION ---
-/**
- * Returns implied odds for home win, draw, away win based on team ranks.
- * Odds are returned as decimal odds (e.g., 2.5 means 40% chance).
- */
+
 export function calculateFixtureOdds(
   homeTeam: string,
   awayTeam: string,
