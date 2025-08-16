@@ -9,7 +9,9 @@ import MatchPredictionForm from "@/components/MatchPredictionForm";
 import { formatDateTime } from "../../utils/formatDate";
 import { useUser } from "@/app/auth/components/Context";
 import UserPredictionsList from "@/components/UserPredictionsList";
+import { api } from "@/lib/api";
 
+// -------------------- Types --------------------
 type Team = {
   id: number;
   name: string;
@@ -26,14 +28,50 @@ type Fixture = {
   time?: string;
 };
 
-type Props = {
-  fixture: Fixture;
+type Prediction = {
   userId: string;
+  fixtureId: number;
+  homeScore: number;
+  awayScore: number;
+  outcome: string;
+  odds: string;
+  points?: number | null;
 };
 
-// Main FixturePage component
-function FixturePage({ fixture, userId }: Props) {
-  const [hasUserPredicted, setHasUserPredicted] = useState(false);
+// -------------------- Main FixturePage --------------------
+function FixturePage({
+  fixture,
+  userId,
+}: {
+  fixture: Fixture;
+  userId: string;
+}) {
+  const [hasUserPredicted, setHasUserPredicted] = useState<boolean>(false);
+  const [loadingPredictions, setLoadingPredictions] = useState<boolean>(true);
+
+  useEffect(() => {
+    const checkUserPrediction = async () => {
+      try {
+        const data: { predictions?: Prediction[] } = await api.get(
+          `/api/predictions?fixtureId=${fixture.id}`
+        );
+
+        const predictionsArr: Prediction[] = Array.isArray(data?.predictions)
+          ? data.predictions
+          : [];
+
+        const found = predictionsArr.some((p) => p.userId === userId);
+        setHasUserPredicted(found);
+      } catch (err) {
+        console.error("Error fetching predictions:", err);
+        setHasUserPredicted(false);
+      } finally {
+        setLoadingPredictions(false);
+      }
+    };
+
+    checkUserPrediction();
+  }, [fixture.id, userId]);
 
   return (
     <div className="p-4 max-w-screen-md mx-auto flex flex-col items-center space-y-6">
@@ -41,6 +79,7 @@ function FixturePage({ fixture, userId }: Props) {
         {formatDateTime(fixture.utcDate)}
       </span>
 
+      {/* Teams */}
       <div className="flex items-center justify-center gap-6 w-full max-w-sm mx-auto">
         <div className="flex flex-col items-center flex-1">
           <Image
@@ -67,27 +106,27 @@ function FixturePage({ fixture, userId }: Props) {
         </div>
       </div>
 
-      {/* Prediction form */}
-      <MatchPredictionForm
-        fixture={fixture}
-        userId={userId}
-        setHasUserPredicted={setHasUserPredicted}
-      />
-      
-      {/* Conditionally render the UserPredictionsList */}
-      {hasUserPredicted && (
+      {/* Prediction form or list */}
+      {loadingPredictions ? (
+        <p className="text-gray-400">Loading predictions...</p>
+      ) : hasUserPredicted ? (
         <UserPredictionsList mode="fixture" fixtureId={fixture.id} />
+      ) : (
+        <MatchPredictionForm
+          fixture={fixture}
+          userId={userId}
+          setHasUserPredicted={setHasUserPredicted}
+        />
       )}
     </div>
   );
 }
 
-// Wrapper component that fetches the fixture and current user id
+// -------------------- Wrapper --------------------
 export default function FixturePageWrapper() {
   const [fixture, setFixture] = useState<Fixture | null>(null);
-  const [loading, setLoading] = useState(true);
-  const params = useParams();
-
+  const [loading, setLoading] = useState<boolean>(true);
+  const params = useParams<{ id: string }>();
   const { user } = useUser();
 
   useEffect(() => {
