@@ -119,15 +119,19 @@ export default function Header() {
                         className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 w-full"
                         onClick={async () => {
                           try {
+                            const token = localStorage.getItem("token");
                             const res = await fetch("/api/results/update", {
                               method: "POST",
                               headers: {
                                 "Content-Type": "application/json",
+                                Authorization: `Bearer ${token}`, // ✅ Add this
                               },
                             });
                             const data = await res.json();
                             if (res.ok) {
-                              alert(`Results updated: ${data.updated} matches.`);
+                              alert(
+                                `Results updated: ${data.updated} matches.`
+                              );
                               console.log(data);
                             } else {
                               alert(
