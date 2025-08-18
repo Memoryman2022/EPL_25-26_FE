@@ -110,6 +110,14 @@ export default function Header() {
                     Leaderboard
                   </Link>
                 </li>
+                <li>
+                  <Link
+                    href="/scoring-guide"
+                    onClick={() => setMenuOpen(false)}
+                  >
+                    Scoriing Guide
+                  </Link>
+                </li>
 
                 {user.role === "admin" && (
                   <>
