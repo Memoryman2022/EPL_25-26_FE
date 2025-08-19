@@ -28,14 +28,12 @@ type Fixture = {
   time?: string;
 };
 
-type Prediction = {
-  userId: string;
+type Result = {
   fixtureId: number;
-  homeScore: number;
-  awayScore: number;
-  outcome: string;
-  odds: string;
-  points?: number | null;
+  score: {
+    fullTime: { home: number; away: number };
+    winner: string;
+  };
 };
 
 // -------------------- Main FixturePage --------------------
@@ -48,20 +46,18 @@ function FixturePage({
 }) {
   const [hasUserPredicted, setHasUserPredicted] = useState<boolean>(false);
   const [loadingPredictions, setLoadingPredictions] = useState<boolean>(true);
+  const [result, setResult] = useState<Result | null>(null);
+  const [loadingResult, setLoadingResult] = useState<boolean>(true);
 
+  // Fetch user predictions
   useEffect(() => {
     const checkUserPrediction = async () => {
       try {
-        const data: { predictions?: Prediction[] } = await api.get(
+        const data: { predictions?: any[] } = await api.get(
           `/api/predictions?fixtureId=${fixture.id}`
         );
-
-        const predictionsArr: Prediction[] = Array.isArray(data?.predictions)
-          ? data.predictions
-          : [];
-
-        const found = predictionsArr.some((p) => p.userId === userId);
-        setHasUserPredicted(found);
+        const found = data?.predictions?.some((p) => p.userId === userId);
+        setHasUserPredicted(found || false);
       } catch (err) {
         console.error("Error fetching predictions:", err);
         setHasUserPredicted(false);
@@ -69,9 +65,24 @@ function FixturePage({
         setLoadingPredictions(false);
       }
     };
-
     checkUserPrediction();
   }, [fixture.id, userId]);
+
+  // Fetch fixture result
+  useEffect(() => {
+    const fetchResult = async () => {
+      try {
+        const data: Result = await api.get(`/api/results/${fixture.id}`);
+        setResult(data);
+      } catch (err) {
+        console.error("Error fetching fixture result:", err);
+        setResult(null);
+      } finally {
+        setLoadingResult(false);
+      }
+    };
+    fetchResult();
+  }, [fixture.id]);
 
   return (
     <div className="p-4 max-w-screen-md mx-auto flex flex-col items-center space-y-6">
@@ -105,6 +116,19 @@ function FixturePage({
           <ResponsiveTeamName name={fixture.awayTeam.name} />
         </div>
       </div>
+
+      {/* Result */}
+      {loadingResult ? (
+        <p className="text-gray-400">Loading result...</p>
+      ) : result ? (
+        <div className="text-center mt-2 text-lg font-semibold">
+          Score: {result.score.fullTime.home} - {result.score.fullTime.away}{" "}
+          <br />
+          Winner: {result.score.winner || "N/A"}
+        </div>
+      ) : (
+        <p className="text-gray-400">No result yet.</p>
+      )}
 
       {/* Prediction form or list */}
       {loadingPredictions ? (
