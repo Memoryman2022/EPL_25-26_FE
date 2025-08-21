@@ -3,11 +3,12 @@ import clientPromise from "@/lib/mongodb";
 
 export async function GET(
   req: Request,
-  { params }: { params: { fixtureId: string } }
+  context: { params: Promise<{ fixtureId: string }> }
 ) {
-  const fixtureId = parseInt(params.fixtureId, 10);
+  const { fixtureId } = await context.params; // ✅ await params
+  const id = parseInt(fixtureId, 10);
 
-  if (isNaN(fixtureId)) {
+  if (isNaN(id)) {
     return NextResponse.json({ error: "Invalid fixtureId" }, { status: 400 });
   }
 
@@ -15,7 +16,7 @@ export async function GET(
     const client = await clientPromise;
     const db = client.db("EPL2025");
 
-    const result = await db.collection("results").findOne({ fixtureId });
+    const result = await db.collection("results").findOne({ fixtureId: id });
 
     if (!result) {
       return NextResponse.json(
