@@ -73,12 +73,13 @@ export function getTeamGroup(teamName: string): number {
 export function calculateOutcomeLikelihood(
   homeTeam: string,
   awayTeam: string,
-  predictedOutcome: "home_win" | "away_win" | "draw",
+  predictedOutcome: "homeWin" | "awayWin" | "draw",
   homeScore: number,
-  awayScore: number
+  awayScore: number,
+  isCorrectScore: boolean // 👈 pass in whether the user got the exact score right
 ): {
-  likelihood: "likely" | "moderately_likely" | "unlikely";
-  points: number;
+  likelihood: "likely" | "moderately_likely" | "unlikely" | "very_unlikely";
+  points: number; // extra points for correct score (NOT including base 5 for outcome)
   explanation: string;
 } {
   const homeRanking = getTeamRanking(homeTeam);
@@ -98,13 +99,13 @@ export function calculateOutcomeLikelihood(
 
   // Determine if this is an upset prediction
   let isUpset = false;
-  if (predictedOutcome === "home_win" && homeGroup > awayGroup) {
+  if (predictedOutcome === "homeWin" && homeGroup > awayGroup) {
     isUpset = true;
-  } else if (predictedOutcome === "away_win" && awayGroup > homeGroup) {
+  } else if (predictedOutcome === "awayWin" && awayGroup > homeGroup) {
     isUpset = true;
   }
 
-  let likelihood: "likely" | "moderately_likely" | "unlikely";
+  let likelihood: "likely" | "moderately_likely" | "unlikely" | "very_unlikely";
   let points: number;
   let explanation: string;
 
@@ -125,7 +126,7 @@ export function calculateOutcomeLikelihood(
   // Tier 2: LIKELY (10 points) - Most expected outcomes
   else if (
     (predictedOutcome !== "draw" && groupDifference >= 2) ||
-    (groupDifference === 0)
+    groupDifference === 0
   ) {
     likelihood = "likely";
     points = 10;
@@ -145,6 +146,13 @@ export function calculateOutcomeLikelihood(
     explanation = `Moderate difficulty prediction between adjacent groups (Groups ${homeGroup} vs ${awayGroup})`;
   }
 
+  // Special case: correct score in same-group matchup → bump to moderate
+  if (isCorrectScore && groupDifference === 0) {
+    likelihood = "moderately_likely";
+    points = 15;
+    explanation = `Correct score prediction in same-group matchup is harder to call, bumped from 'likely' to 'moderately_likely'`;
+  }
+
   // NEW STIPULATION: Bump up likelihood for predictions with an excess of 3 goals
   const totalGoals = Math.abs(homeScore + awayScore);
   if (totalGoals > 3) {
@@ -155,8 +163,11 @@ export function calculateOutcomeLikelihood(
     } else if (likelihood === "moderately_likely") {
       likelihood = "unlikely";
       points = 20;
+    } else if (likelihood === "unlikely") {
+      likelihood = "very_unlikely";
+      points = 25;
     }
-    explanation += `. Additionally, the large goal difference (${totalGoals}) bumped the likelihood from '${originalLikelihood}' to '${likelihood}'`;
+    explanation += `. Additionally, the large goal total (${totalGoals}) bumped the likelihood from '${originalLikelihood}' to '${likelihood}'`;
   }
 
   return {

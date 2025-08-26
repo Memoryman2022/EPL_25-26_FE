@@ -1,0 +1,11 @@
+[
+  {
+    "fixtureId": 1,
+    "homeTeam": { "name": "Liverpool" },
+    "awayTeam": { "name": "Everton" },
+    "score": {
+      "fullTime": { "home": 3, "away": 1 },
+      "winner": "HOME_TEAM"
+    }
+  }
+]

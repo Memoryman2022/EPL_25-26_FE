@@ -6,6 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import { Menu, X } from "lucide-react";
 import NavigationArrows from "@/app/utils/NavigationArrows";
+import UpdateScoresButton from "@/components/UpdateScores";
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -122,6 +123,7 @@ export default function Header() {
                 {user.role === "admin" && (
                   <>
                     {/* Update Results */}
+                    {/* Update Results */}
                     <li className="mb-[20px]">
                       <button
                         className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 w-full"
@@ -132,7 +134,7 @@ export default function Header() {
                               method: "POST",
                               headers: {
                                 "Content-Type": "application/json",
-                                Authorization: `Bearer ${token}`, // ✅ Add this
+                                Authorization: `Bearer ${token}`,
                               },
                             });
                             const data = await res.json();
@@ -156,43 +158,11 @@ export default function Header() {
                       </button>
                     </li>
 
-                    {/* Calculate Prediction Scores */}
+                    {/* Update Scores */}
+                    {/* Update Scores */}
                     <li className="mb-[20px]">
-                      <button
-                        className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 w-full"
-                        onClick={async () => {
-                          try {
-                            const token = localStorage.getItem("token");
-                            const res = await fetch(
-                              "/api/predictions/calculate-scores",
-                              {
-                                method: "POST",
-                                headers: {
-                                  "Content-Type": "application/json",
-                                  Authorization: `Bearer ${token}`,
-                                },
-                              }
-                            );
-                            const data = await res.json();
-                            if (res.ok) {
-                              alert(
-                                `Scores calculated for ${data.updated} predictions.`
-                              );
-                            } else {
-                              alert(
-                                `Error: ${
-                                  data.error || "Failed to calculate scores."
-                                }`
-                              );
-                            }
-                          } catch (err) {
-                            console.error(err);
-                            alert("Error calculating scores.");
-                          }
-                        }}
-                      >
-                        Calculate Prediction Scores
-                      </button>
+                      <UpdateScoresButton />
+                      {/* Replace with actual fixtureId */}
                     </li>
                   </>
                 )}

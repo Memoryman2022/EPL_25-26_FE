@@ -5,7 +5,7 @@ import { groupTeams, Team } from "@/app/utils/teamGroups";
 export async function GET() {
   try {
     const client = await clientPromise;
-    const db = client.db();
+    const db = client.db("EPL2025");
     const teams = await db
       .collection<Team>("rankings")
       .find({})

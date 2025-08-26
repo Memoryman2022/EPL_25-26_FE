@@ -1,0 +1,17 @@
+[
+  {
+    "_id": "689f6e8cbd7d48ac73dd3694",
+    "userName": "SiiiiiuLater",
+    "email": "stelio.filippiadis@gmail.com",
+    "password": "$2b$10$exBOM5MtzxWtGTrC30z37OkGMcESv7PhprpJLZWS8qpezy8Xgfl4u",
+    "profileImage": "/uploads/6AF5A8AD-82D1-4788-91CA-265273EA831C.png",
+    "score": 20,
+    "correctScores": 1,
+    "correctOutcomes": 1,
+    "movement": "none",
+    "position": 0,
+    "previousPosition": 0,
+    "role": "user",
+    "createdAt": "2025-08-15T17:29:48.840+00:00"
+  }
+]
