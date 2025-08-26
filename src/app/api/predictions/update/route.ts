@@ -13,7 +13,7 @@ export async function POST(req: Request) {
     const db = client.db("EPL2025");
     console.log("Connected to MongoDB");
 
-    // 1. Get all fixtureIds from results
+    // 1. Get all fixtureIds from results //
     const results = await db
       .collection<MatchResult>("results")
       .find({})
