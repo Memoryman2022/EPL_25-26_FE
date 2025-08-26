@@ -12,6 +12,8 @@ export async function resetAllPredictions() {
         $set: {
           points: 0,
           calculated: false,
+          outcomeCorrect: false,
+          scoreCorrect: false,
         },
       }
     );

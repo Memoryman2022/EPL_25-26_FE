@@ -26,8 +26,8 @@ export function calculatePredictionDifficulty(
     homeScore === awayScore
       ? "draw"
       : homeScore > awayScore
-      ? "home_win"
-      : "away_win";
+        ? "homeWin"
+        : "awayWin";
 
   // Convert team names to database format for ranking lookup
   const homeTeamDB = externalToDatabaseName(homeTeam);
@@ -35,12 +35,13 @@ export function calculatePredictionDifficulty(
 
   // Use the static team ranking system
   const result = calculateOutcomeLikelihood(
-  homeTeamDB,
-  awayTeamDB,
-  predictedOutcome,
-  homeScore,
-  awayScore
-);
+    homeTeamDB,
+    awayTeamDB,
+    predictedOutcome,
+    homeScore,
+    awayScore,
+    true
+  );
   // Convert likelihood to difficulty for backward compatibility
   let difficulty: "Easy" | "Medium" | "Hard";
   switch (result.likelihood) {
