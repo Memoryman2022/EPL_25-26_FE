@@ -16,7 +16,7 @@ type Prediction = {
 };
 
 type Props =
-  | { mode: "fixture"; fixtureId: number }
+  | { mode: "fixture"; fixtureId: string } // <-- string, not number
   | { mode: "profile"; userId: string };
 
 type UserInfo = {
@@ -45,7 +45,6 @@ export default function UserPredictionsList(props: Props) {
           : [];
         setPredictions(predictionsArr);
 
-        // ✅ Fetch users and map both name + profileImage
         const users = await api.get("/api/users");
         const map: Record<string, UserInfo> = {};
         users.forEach((user: any) => {

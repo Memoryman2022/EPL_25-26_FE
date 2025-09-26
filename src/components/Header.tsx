@@ -62,7 +62,7 @@ export default function Header() {
 
       {menuOpen && (
         <nav className="bg-gray-800 border-t border-green-200">
-          <ul className="flex flex-col text-white p-4 space-y-2 text-sm">
+          <ul className="flex flex-col text-white p-4 space-y-2 text-sm text-right">
             {!user ? (
               <>
                 <li className="mb-[20px]">
@@ -106,17 +106,17 @@ export default function Header() {
                     Fixture Calendar
                   </Link>
                 </li>
-                <li>
+                <li className="mb-[20px]">
                   <Link href="/leaderboard" onClick={() => setMenuOpen(false)}>
                     Leaderboard
                   </Link>
                 </li>
-                <li>
+                <li className="mb-[20px]">
                   <Link
                     href="/scoring-guide"
                     onClick={() => setMenuOpen(false)}
                   >
-                    Scoriing Guide
+                    Scoring Guide
                   </Link>
                 </li>
 
@@ -126,7 +126,7 @@ export default function Header() {
                     {/* Update Results */}
                     <li className="mb-[20px]">
                       <button
-                        className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 w-full"
+                        className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 w-100px"
                         onClick={async () => {
                           try {
                             const token = localStorage.getItem("token");

@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import UserPredictionsList from "@/components/UserPredictionsList";
-import { useDebounce } from "@/app/utils/useDebounce"; // Ensure this path is correct
+import { useDebounce } from "@/app/utils/useDebounce";
 import { api } from "@/lib/api";
 import {
   calculatePredictionDifficulty,
@@ -13,7 +13,7 @@ import { externalToDatabaseName } from "@/lib/teamNameMapping";
 
 type Prediction = {
   _id?: string;
-  fixtureId: number;
+  fixtureId: string; // <-- string, not number
   userId: string;
   homeScore: number | "";
   awayScore: number | "";
@@ -23,9 +23,9 @@ type Prediction = {
   updatedAt?: string;
 };
 
-type Team = { id: number; name: string };
+type Team = { id: string; name: string }; // <-- string, not number
 type Fixture = {
-  id: number;
+  id: string; // <-- string, not number
   homeTeam: Team;
   awayTeam: Team;
   utcDate: string;
@@ -53,11 +53,9 @@ export default function MatchPredictionForm({
     Prediction | undefined
   >();
 
-  // Use the debounce hooks for home and away scores
   const debouncedHomeScore = useDebounce(homeScore, 500);
   const debouncedAwayScore = useDebounce(awayScore, 500);
 
-  // Fetch existing prediction
   useEffect(() => {
     async function fetchData() {
       try {
@@ -68,10 +66,8 @@ export default function MatchPredictionForm({
         if (predictionData.prediction) {
           setHomeScore(predictionData.prediction.homeScore);
           setAwayScore(predictionData.prediction.awayScore);
-          // NEW: Tell the parent component that a prediction exists
           setHasUserPredicted(true);
         } else {
-          // NEW: If no prediction is found, ensure the parent state is false
           setHasUserPredicted(false);
         }
       } catch (error) {
@@ -79,9 +75,8 @@ export default function MatchPredictionForm({
       }
     }
     fetchData();
-  }, [fixture.id, userId, setHasUserPredicted]); // Add setHasUserPredicted to dependency array
+  }, [fixture.id, userId, setHasUserPredicted]);
 
-  // Calculate odds dynamically when debounced scores change
   useEffect(() => {
     if (debouncedHomeScore === "" || debouncedAwayScore === "") {
       setOdds("N/A");
@@ -124,7 +119,7 @@ export default function MatchPredictionForm({
     setSubmitting(true);
 
     const prediction: Prediction = {
-      fixtureId: fixture.id,
+      fixtureId: fixture.id, // <-- string
       userId,
       homeScore,
       awayScore,
@@ -133,8 +128,8 @@ export default function MatchPredictionForm({
         homeScore > awayScore
           ? "homeWin"
           : homeScore < awayScore
-          ? "awayWin"
-          : "draw",
+            ? "awayWin"
+            : "draw",
     };
 
     try {
@@ -143,7 +138,6 @@ export default function MatchPredictionForm({
         : await api.post("/api/predictions", prediction);
 
       setExistingPrediction(saved);
-      // NEW: Tell the parent component that a prediction has been submitted
       setHasUserPredicted(true);
       alert("Prediction saved!");
     } catch (error) {
@@ -202,10 +196,10 @@ export default function MatchPredictionForm({
                     difficulty === "Easy"
                       ? "text-green-400"
                       : difficulty === "Medium"
-                      ? "text-yellow-400"
-                      : difficulty === "Hard"
-                      ? "text-red-400"
-                      : "text-gray-400"
+                        ? "text-yellow-400"
+                        : difficulty === "Hard"
+                          ? "text-red-400"
+                          : "text-gray-400"
                   }`}
                 >
                   {difficulty}
