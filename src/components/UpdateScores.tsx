@@ -18,44 +18,33 @@ export default function UpdateScoresButton() {
       if (!Array.isArray(results) || results.length === 0) {
         console.warn("No results returned from API.");
         alert("No results found to update predictions.");
+        setLoading(false);
         return;
       }
 
-      let totalUpdated = 0;
-
-      for (const result of results) {
-        console.log("Updating predictions for fixtureId:", result.fixtureId);
-
-        const updateRes = await fetch("/api/predictions/update", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ fixtureId: result.fixtureId }), // make sure this is a number
-        });
-        console.log(
-          "Sending fixtureId to update:",
-          result.fixtureId,
-          typeof result.fixtureId
-        );
-
-        const data = await updateRes.json();
-
-        if (updateRes.ok) {
-          console.log(
-            `Updated ${data.updated} predictions for fixtureId ${result.fixtureId}`
-          );
-          totalUpdated += data.updated || 0;
-        } else {
-          console.error(
-            `Error updating fixtureId ${result.fixtureId}:`,
-            data.error
-          );
-        }
-      }
-
-      console.log(`Total predictions updated: ${totalUpdated}`);
-      alert(
-        `Updated ${totalUpdated} predictions and user scores successfully.`
+      // Collect all fixtureIds as strings
+      const fixtureIds: string[] = results.map((result: any) =>
+        String(result.fixtureId)
       );
+
+      // Make a single API call to update all predictions and scores
+      const updateRes = await fetch("/api/predictions/update-batch", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ fixtureIds }), // array of strings
+      });
+
+      const data = await updateRes.json();
+
+      if (updateRes.ok) {
+        console.log(`Batch updated: ${data.updated} predictions`);
+        alert(
+          `Updated ${data.updated} predictions and user scores successfully.`
+        );
+      } else {
+        console.error("Error updating predictions:", data.error);
+        alert("Failed to update predictions.");
+      }
     } catch (err) {
       console.error("Error during update:", err);
       alert("Failed to update predictions.");
