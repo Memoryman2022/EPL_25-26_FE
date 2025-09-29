@@ -19,7 +19,7 @@ type Team = {
 };
 
 type Fixture = {
-  id: string;
+  id: number;
   homeTeam: Team;
   awayTeam: Team;
   utcDate: string;
@@ -51,17 +51,16 @@ export default function FixtureCalendarList() {
         let allFixtures: Fixture[] = [];
         for (const date in data.matchDays) {
           withTimes[date] = data.matchDays[date].map((fixture) => {
-            // Ensure all IDs are strings
+            // Keep IDs as numbers (matching external API)
             const fixtureWithTime: Fixture = {
               ...fixture,
-              id: String(fixture.id),
               homeTeam: {
                 ...fixture.homeTeam,
-                id: String(fixture.homeTeam.id),
+                id: String(fixture.homeTeam.id), // Team IDs stay as strings for routing
               },
               awayTeam: {
                 ...fixture.awayTeam,
-                id: String(fixture.awayTeam.id),
+                id: String(fixture.awayTeam.id), // Team IDs stay as strings for routing
               },
               time: moment(fixture.utcDate).format("HH:mm"),
             };

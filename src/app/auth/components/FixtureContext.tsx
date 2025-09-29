@@ -10,7 +10,7 @@ type Team = {
   crest?: string;
 };
 export type Fixture = {
-  id: string;
+  id: number;
   homeTeam: Team;
   awayTeam: Team;
   utcDate: string;

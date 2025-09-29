@@ -22,7 +22,7 @@ type Team = {
 };
 
 type Fixture = {
-  id: string;
+  id: number;
   homeTeam: Team;
   awayTeam: Team;
   utcDate: string;
@@ -30,7 +30,7 @@ type Fixture = {
 };
 
 type Result = {
-  fixtureId: string;
+  fixtureId: number;
   score: {
     fullTime: { home: number; away: number };
     winner: string;
@@ -135,7 +135,7 @@ function FixturePage({
       {loadingPredictions ? (
         <p className="text-gray-400">Loading predictions...</p>
       ) : hasUserPredicted ? (
-        <UserPredictionsList mode="fixture" fixtureId={fixture.id} />
+        <UserPredictionsList mode="fixture" fixtureId={fixture.id.toString()} />
       ) : (
         <MatchPredictionForm
           fixture={fixture}
@@ -153,19 +153,68 @@ export default function FixturePageWrapper() {
   const [loading, setLoading] = useState<boolean>(true);
   const params = useParams<{ id: string }>();
   const { user } = useUser();
-  const { fixtures } = useFixtures();
+  const { fixtures, setFixtures } = useFixtures();
   const router = useRouter();
 
   useEffect(() => {
-    if (fixtures && fixtures.length > 0) {
-      const found = fixtures.find((f) => f.id === params.id);
-      if (found) {
-        setFixture(found);
-        sessionStorage.setItem("selectedFixture", JSON.stringify(found));
+    const loadFixture = async () => {
+      const fixtureId = parseInt(params.id, 10);
+      
+      // First try to find in context
+      if (fixtures && fixtures.length > 0) {
+        const found = fixtures.find((f) => f.id === fixtureId);
+        if (found) {
+          setFixture(found);
+          sessionStorage.setItem("selectedFixture", JSON.stringify(found));
+          setLoading(false);
+          return;
+        }
       }
+      
+      // If not found in context, try to load from sessionStorage
+      const storedFixture = sessionStorage.getItem("selectedFixture");
+      if (storedFixture) {
+        try {
+          const parsedFixture = JSON.parse(storedFixture);
+          if (parsedFixture.id === fixtureId) {
+            setFixture(parsedFixture);
+            setLoading(false);
+            return;
+          }
+        } catch (e) {
+          console.error("Error parsing stored fixture:", e);
+        }
+      }
+      
+      // If still not found, load fixtures from API
+      try {
+        const res = await fetch("/api/fixtures");
+        if (res.ok) {
+          const data = await res.json();
+          let allFixtures: Fixture[] = [];
+          
+          // Flatten the matchDays structure
+          for (const date in data.matchDays) {
+            allFixtures = allFixtures.concat(data.matchDays[date]);
+          }
+          
+          const found = allFixtures.find((f) => f.id === fixtureId);
+          if (found) {
+            setFixture(found);
+            sessionStorage.setItem("selectedFixture", JSON.stringify(found));
+            // Also update the context for future navigation
+            setFixtures(allFixtures);
+          }
+        }
+      } catch (error) {
+        console.error("Error loading fixtures:", error);
+      }
+      
       setLoading(false);
-    }
-  }, [fixtures, params.id]);
+    };
+    
+    loadFixture();
+  }, [fixtures, params.id, setFixtures]);
 
   if (loading) return <div className="p-4">Loading...</div>;
   if (!fixture)

@@ -13,7 +13,7 @@ import { externalToDatabaseName } from "@/lib/teamNameMapping";
 
 type Prediction = {
   _id?: string;
-  fixtureId: string; // <-- string, not number
+  fixtureId: number; // <-- number to match external API
   userId: string;
   homeScore: number | "";
   awayScore: number | "";
@@ -23,9 +23,9 @@ type Prediction = {
   updatedAt?: string;
 };
 
-type Team = { id: string; name: string }; // <-- string, not number
+type Team = { id: string; name: string }; // Team IDs stay as strings for routing
 type Fixture = {
-  id: string; // <-- string, not number
+  id: number; // <-- number to match external API
   homeTeam: Team;
   awayTeam: Team;
   utcDate: string;
