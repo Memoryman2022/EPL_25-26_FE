@@ -13,24 +13,24 @@ export interface TeamRanking {
 export const ALL_TEAMS: TeamRanking[] = [
   { name: "Liverpool", rank: 1, group: 1 },
   { name: "Arsenal", rank: 2, group: 1 },
-  { name: "Tottenham Hotspur", rank: 3, group: 1 },
-  { name: "Bournemouth", rank: 4, group: 1 },
-  { name: "Crystal Palace", rank: 5, group: 1 },
-  { name: "Chelsea", rank: 6, group: 2 },
-  { name: "Sunderland", rank: 7, group: 2 },
-  { name: "Fulham", rank: 8, group: 2 },
-  { name: "Manchester City", rank: 9, group: 2 },
-  { name: "Everton", rank: 10, group: 2 },
-  { name: "Manchester United", rank: 11, group: 3 },
-  { name: "Leeds United", rank: 12, group: 3 },
-  { name: "Newcastle United", rank: 13, group: 3 },
-  { name: "Brighton & Hove Albion", rank: 14, group: 3 },
-  { name: "Nottingham Forest", rank: 15, group: 3 },
-  { name: "Burnley", rank: 16, group: 4 },
-  { name: "Brentford", rank: 17, group: 4 },
-  { name: "Aston Villa", rank: 18, group: 4 },
-  { name: "West Ham United", rank: 19, group: 4 },
-  { name: "Wolverhampton Wanderers", rank: 20, group: 4 },
+  { name: "Manchester City", rank: 3, group: 1 },
+  { name: "Chelsea", rank: 4, group: 1 },
+  { name: "Manchester United", rank: 5, group: 2 },
+  { name: "Newcastle", rank: 6, group: 2 },
+  { name: "Tottenham Hotspur", rank: 7, group: 2 },
+  { name: "Aston Villa", rank: 8, group: 2 },
+  { name: "Brighton", rank: 9, group: 3 },
+  { name: "Bournemouth", rank: 10, group: 3 },
+  { name: "Nottingham Forest", rank: 11, group: 3 },
+  { name: "West Ham", rank: 12, group: 3 },
+  { name: "Fulham", rank: 13, group: 4 },
+  { name: "Everton", rank: 14, group: 4 },
+  { name: "Crystal Palace", rank: 15, group: 4 },
+  { name: "Brentford", rank: 16, group: 4 },
+  { name: "Sunderland", rank: 17, group: 4 },
+  { name: "Wolves", rank: 18, group: 4 },
+  { name: "Leeds", rank: 19, group: 4 },
+  { name: "Burnley", rank: 20, group: 4 },
 ];
 
 // Group definitions for easy reference
@@ -45,7 +45,7 @@ export const TEAM_GROUPS = {
 export function getTeamRanking(teamName: string): TeamRanking | undefined {
   // First try exact match
   let team = ALL_TEAMS.find((team) => team.name === teamName);
-  
+
   // If not found, try with common name variations
   if (!team) {
     // Remove common suffixes like "FC", "AFC", etc.
@@ -53,10 +53,10 @@ export function getTeamRanking(teamName: string): TeamRanking | undefined {
       .replace(/\s+FC$/, "")
       .replace(/\s+AFC$/, "")
       .trim();
-    
+
     team = ALL_TEAMS.find((team) => team.name === normalizedName);
   }
-  
+
   return team;
 }
 

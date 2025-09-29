@@ -78,7 +78,7 @@ function FixturePage({
         setResult(data);
         setResultNotFound(false);
       } catch (err: any) {
-        if (err?.response?.status === 404 || err?.message?.includes('404')) {
+        if (err?.response?.status === 404 || err?.message?.includes("404")) {
           setResult(null);
           setResultNotFound(true);
         } else {
@@ -169,7 +169,7 @@ export default function FixturePageWrapper() {
   useEffect(() => {
     const loadFixture = async () => {
       const fixtureId = parseInt(params.id, 10);
-      
+
       // First try to find in context
       if (fixtures && fixtures.length > 0) {
         const found = fixtures.find((f) => f.id === fixtureId);
@@ -180,7 +180,7 @@ export default function FixturePageWrapper() {
           return;
         }
       }
-      
+
       // If not found in context, try to load from sessionStorage
       const storedFixture = sessionStorage.getItem("selectedFixture");
       if (storedFixture) {
@@ -195,19 +195,19 @@ export default function FixturePageWrapper() {
           console.error("Error parsing stored fixture:", e);
         }
       }
-      
+
       // If still not found, load fixtures from API
       try {
         const res = await fetch("/api/fixtures");
         if (res.ok) {
           const data = await res.json();
           let allFixtures: Fixture[] = [];
-          
+
           // Flatten the matchDays structure
           for (const date in data.matchDays) {
             allFixtures = allFixtures.concat(data.matchDays[date]);
           }
-          
+
           const found = allFixtures.find((f) => f.id === fixtureId);
           if (found) {
             setFixture(found);
@@ -219,10 +219,10 @@ export default function FixturePageWrapper() {
       } catch (error) {
         console.error("Error loading fixtures:", error);
       }
-      
+
       setLoading(false);
     };
-    
+
     loadFixture();
   }, [fixtures, params.id, setFixtures]);
 

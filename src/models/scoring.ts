@@ -60,7 +60,7 @@ export function calculatePredictionPoints(
         prediction.awayScore,
         true
       );
-      
+
       // Apply multiplier to the base 5 points (2x, 3x, 4x, or 5x)
       const multiplier = getMultiplierFromLikelihood(likelihood.likelihood);
       totalPoints = 5 * multiplier;
@@ -74,7 +74,9 @@ export function calculatePredictionPoints(
 }
 
 // Helper function to convert likelihood to multiplier
-function getMultiplierFromLikelihood(likelihood: "likely" | "moderately_likely" | "unlikely" | "very_unlikely"): number {
+function getMultiplierFromLikelihood(
+  likelihood: "likely" | "moderately_likely" | "unlikely" | "very_unlikely"
+): number {
   switch (likelihood) {
     case "likely":
       return 2; // 5 * 2 = 10 points
