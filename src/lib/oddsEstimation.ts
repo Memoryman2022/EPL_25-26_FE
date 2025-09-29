@@ -18,7 +18,7 @@ export function calculatePredictionDifficulty(
   homeTeam: string,
   awayTeam: string
 ): {
-  difficulty: "Easy" | "Medium" | "Hard";
+  difficulty: "Easy" | "Medium" | "Hard" | "Very Hard";
   multiplier: number;
   explanation: string;
 } {
@@ -43,7 +43,7 @@ export function calculatePredictionDifficulty(
     true
   );
   // Convert likelihood to difficulty for backward compatibility
-  let difficulty: "Easy" | "Medium" | "Hard";
+  let difficulty: "Easy" | "Medium" | "Hard" | "Very Hard";
   switch (result.likelihood) {
     case "likely":
       difficulty = "Easy";
@@ -53,6 +53,9 @@ export function calculatePredictionDifficulty(
       break;
     case "unlikely":
       difficulty = "Hard";
+      break;
+    case "very_unlikely":
+      difficulty = "Very Hard";
       break;
     default:
       difficulty = "Medium";
@@ -76,6 +79,8 @@ export function getOddsDisplay(difficulty: string): string {
       return "3.0"; // 3x multiplier
     case "Hard":
       return "4.0"; // 4x multiplier
+    case "Very Hard":
+      return "5.0"; // 5x multiplier
     default:
       return "3.0";
   }

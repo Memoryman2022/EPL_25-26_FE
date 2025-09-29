@@ -14,12 +14,21 @@ export const apiCall = async (url: string, options: RequestInit = {}) => {
   });
 
   if (!response.ok) {
-    const errorData = await response
-      .json()
-      .catch(() => ({ error: "Unknown error" }));
-    throw new Error(
-      errorData.error || `HTTP error! status: ${response.status}`
-    );
+    if (response.status !== 404) {
+      // Only log unexpected errors
+      const errorData = await response
+        .json()
+        .catch(() => ({ error: "Unknown error" }));
+      console.error(`HTTP error! status: ${response.status} for ${url}`);
+      throw new Error(
+        errorData.error || `HTTP error! status: ${response.status}`
+      );
+    } else {
+      // For 404, throw a custom error with status
+      const error: any = new Error(`HTTP error! status: 404`);
+      error.status = 404;
+      throw error;
+    }
   }
 
   return response.json();

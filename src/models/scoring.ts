@@ -45,7 +45,7 @@ export function calculatePredictionPoints(
   // ✅ Check outcome only if both are non-null
   if (userOutcome && actualOutcome && userOutcome === actualOutcome) {
     outcomeCorrect = true;
-    totalPoints += 5;
+    totalPoints = 5; // Base 5 points for correct outcome
 
     if (
       prediction.homeScore === result.score.fullTime.home &&
@@ -60,10 +60,31 @@ export function calculatePredictionPoints(
         prediction.awayScore,
         true
       );
-      totalPoints += likelihood.points;
-      explanation = likelihood.explanation;
+      
+      // Apply multiplier to the base 5 points (2x, 3x, 4x, or 5x)
+      const multiplier = getMultiplierFromLikelihood(likelihood.likelihood);
+      totalPoints = 5 * multiplier;
+      explanation = `${likelihood.explanation} (${likelihood.likelihood} - ${multiplier}x multiplier applied to base 5 points)`;
+    } else {
+      explanation = "Correct outcome predicted (5 points)";
     }
   }
 
   return { totalPoints, outcomeCorrect, scoreCorrect, explanation };
+}
+
+// Helper function to convert likelihood to multiplier
+function getMultiplierFromLikelihood(likelihood: "likely" | "moderately_likely" | "unlikely" | "very_unlikely"): number {
+  switch (likelihood) {
+    case "likely":
+      return 2; // 5 * 2 = 10 points
+    case "moderately_likely":
+      return 3; // 5 * 3 = 15 points
+    case "unlikely":
+      return 4; // 5 * 4 = 20 points
+    case "very_unlikely":
+      return 5; // 5 * 5 = 25 points
+    default:
+      return 2; // Default to 2x
+  }
 }

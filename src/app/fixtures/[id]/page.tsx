@@ -49,6 +49,7 @@ function FixturePage({
   const [loadingPredictions, setLoadingPredictions] = useState<boolean>(true);
   const [result, setResult] = useState<Result | null>(null);
   const [loadingResult, setLoadingResult] = useState<boolean>(true);
+  const [resultNotFound, setResultNotFound] = useState<boolean>(false);
 
   // Fetch user predictions
   useEffect(() => {
@@ -75,9 +76,16 @@ function FixturePage({
       try {
         const data: Result = await api.get(`/api/results/${fixture.id}`);
         setResult(data);
-      } catch (err) {
-        console.error("Error fetching fixture result:", err);
-        setResult(null);
+        setResultNotFound(false);
+      } catch (err: any) {
+        if (err?.response?.status === 404 || err?.message?.includes('404')) {
+          setResult(null);
+          setResultNotFound(true);
+        } else {
+          console.error("Error fetching fixture result:", err);
+          setResult(null);
+          setResultNotFound(false);
+        }
       } finally {
         setLoadingResult(false);
       }
@@ -121,6 +129,8 @@ function FixturePage({
       {/* Result */}
       {loadingResult ? (
         <p className="text-gray-400">Loading result...</p>
+      ) : resultNotFound ? (
+        <p className="text-white">Result not available yet.</p>
       ) : result ? (
         <div className="text-center mt-2 text-xl font-semibold">
           {result.score.fullTime.home} - {result.score.fullTime.away} <br />

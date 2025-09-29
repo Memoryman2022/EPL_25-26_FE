@@ -43,7 +43,21 @@ export const TEAM_GROUPS = {
 
 // Helper function to get team ranking by name
 export function getTeamRanking(teamName: string): TeamRanking | undefined {
-  return ALL_TEAMS.find((team) => team.name === teamName);
+  // First try exact match
+  let team = ALL_TEAMS.find((team) => team.name === teamName);
+  
+  // If not found, try with common name variations
+  if (!team) {
+    // Remove common suffixes like "FC", "AFC", etc.
+    const normalizedName = teamName
+      .replace(/\s+FC$/, "")
+      .replace(/\s+AFC$/, "")
+      .trim();
+    
+    team = ALL_TEAMS.find((team) => team.name === normalizedName);
+  }
+  
+  return team;
 }
 
 // Helper function to get team group by name
@@ -109,8 +123,12 @@ export function calculateOutcomeLikelihood(
   let points: number;
   let explanation: string;
 
-  // Tier 1: UNLIKELY (20 points) - Major upsets & unlikely draws
-  if (isUpset && groupDifference >= 2) {
+  // Tier 1: UNLIKELY (20 points) - Same group matchups & major upsets & unlikely draws
+  if (groupDifference === 0) {
+    likelihood = "unlikely";
+    points = 20;
+    explanation = `Same group matchup: Both teams are in Group ${homeGroup}, making this prediction more difficult`;
+  } else if (isUpset && groupDifference >= 2) {
     likelihood = "unlikely";
     points = 20;
     explanation = `Major upset: ${
@@ -123,34 +141,20 @@ export function calculateOutcomeLikelihood(
     points = 20;
     explanation = `Unlikely draw between Group ${homeGroup} and Group ${awayGroup} teams`;
   }
-  // Tier 2: LIKELY (10 points) - Most expected outcomes
-  else if (
-    (predictedOutcome !== "draw" && groupDifference >= 2) ||
-    groupDifference === 0
-  ) {
+  // Tier 2: LIKELY (10 points) - Expected outcomes between different strength teams
+  else if (predictedOutcome !== "draw" && groupDifference >= 2) {
     likelihood = "likely";
     points = 10;
-    if (groupDifference >= 2) {
-      explanation = `Expected win: Strong team (Group ${Math.min(
-        homeGroup,
-        awayGroup
-      )}) beating weak team (Group ${Math.max(homeGroup, awayGroup)})`;
-    } else {
-      explanation = `Expected outcome between similar strength teams (Groups ${homeGroup} vs ${awayGroup})`;
-    }
+    explanation = `Expected win: Strong team (Group ${Math.min(
+      homeGroup,
+      awayGroup
+    )}) beating weak team (Group ${Math.max(homeGroup, awayGroup)})`;
   }
-  // Tier 3: MODERATELY LIKELY (15 points) - All other scenarios (group difference of 1)
+  // Tier 3: MODERATELY LIKELY (15 points) - Adjacent group matchups
   else {
     likelihood = "moderately_likely";
     points = 15;
     explanation = `Moderate difficulty prediction between adjacent groups (Groups ${homeGroup} vs ${awayGroup})`;
-  }
-
-  // Special case: correct score in same-group matchup → bump to moderate
-  if (isCorrectScore && groupDifference === 0) {
-    likelihood = "moderately_likely";
-    points = 15;
-    explanation = `Correct score prediction in same-group matchup is harder to call, bumped from 'likely' to 'moderately_likely'`;
   }
 
   // NEW STIPULATION: Bump up likelihood for predictions with an excess of 3 goals
@@ -165,6 +169,9 @@ export function calculateOutcomeLikelihood(
       points = 20;
     } else if (likelihood === "unlikely") {
       likelihood = "very_unlikely";
+      points = 25;
+    } else if (likelihood === "very_unlikely") {
+      // Already at highest tier, stay there
       points = 25;
     }
     explanation += `. Additionally, the large goal total (${totalGoals}) bumped the likelihood from '${originalLikelihood}' to '${likelihood}'`;

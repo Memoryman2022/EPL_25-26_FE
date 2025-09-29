@@ -38,19 +38,21 @@ export default function ScoringGuide() {
       <section className="space-y-4">
         <h3 className="text-xl font-semibold">How Your Prediction is Scored</h3>
         <p>
-          When you submit a prediction, our system calculates its difficulty and assigns it one of three point values.
+          You earn <strong>5 points</strong> for correctly predicting the match outcome (home win, draw, or away win).
+        </p>
+        <p>
+          If you also predict the exact score correctly, your 5 points are multiplied by a difficulty factor (2x, 3x, 4x, or 5x) based on how unlikely the prediction was.
         </p>
 
-        <h4 className="text-lg font-bold text-green-400">Tier 1: Likely Outcomes (10 Points)</h4>
+        <h4 className="text-lg font-bold text-green-400">Tier 1: Likely Outcomes (5 × 2 = 10 Points)</h4>
         <p>
           This is the standard score for predictions that are considered the most probable. You will earn <strong>10 points</strong> if you correctly predict:
         </p>
         <ul className="list-disc list-inside space-y-1 ml-4">
           <li><strong>An Expected Win:</strong> A stronger team (with a group difference of 2 or more) beats a much weaker team. For example, a G1 team beating a G4 team.</li>
-          <li><strong>Any Outcome Between Similar Teams:</strong> Any result—win, loss, or draw—in a match between teams of similar strength (with a group difference of 0). For example, a G2 team playing a G2 team.</li>
         </ul>
 
-        <h4 className="text-lg font-bold text-yellow-400 mt-6">Tier 2: Moderately Likely Outcomes (15 Points)</h4>
+        <h4 className="text-lg font-bold text-yellow-400 mt-6">Tier 2: Moderately Likely Outcomes (5 × 3 = 15 Points)</h4>
         <p>
           This tier rewards predictions that are a bit more difficult. You will earn <strong>15 points</strong> if you correctly predict:
         </p>
@@ -58,13 +60,23 @@ export default function ScoringGuide() {
           <li><strong>An Outcome Between Adjacent Groups:</strong> Any win, loss, or draw in a match between teams from adjacent groups (with a group difference of 1). This covers minor upsets (like a G2 team beating a G1 team) as well as close matches and draws between these teams.</li>
         </ul>
 
-        <h4 className="text-lg font-bold text-red-400 mt-6">Tier 3: Unlikely Outcomes (20 Points)</h4>
+        <h4 className="text-lg font-bold text-red-400 mt-6">Tier 3: Unlikely Outcomes (5 × 4 = 20 Points)</h4>
         <p>
-          This is the highest-scoring tier, reserved for the most difficult and boldest predictions. You will earn <strong>20 points</strong> if you correctly predict:
+          This tier rewards difficult predictions. You will earn <strong>20 points</strong> if you correctly predict:
         </p>
         <ul className="list-disc list-inside space-y-1 ml-4">
+          <li><strong>Same Group Matchups:</strong> Any result—win, loss, or draw—in a match between teams of the same strength group (with a group difference of 0). For example, a G1 team playing another G1 team.</li>
           <li><strong>A Major Upset:</strong> A team from a weaker group (with a group difference of 2 or more) beats a much stronger team. For example, a G3 team beating a G1 team.</li>
           <li><strong>A Draw Between Dissimilar Teams:</strong> A draw in a match between two teams of vastly different strengths (with a group difference of 2 or more). For example, a G1 team drawing with a G3 team.</li>
+        </ul>
+
+        <h4 className="text-lg font-bold text-purple-400 mt-6">Tier 4: Very Unlikely Outcomes (5 × 5 = 25 Points)</h4>
+        <p>
+          This is the highest-scoring tier for the most difficult predictions. You will earn <strong>25 points</strong> if you correctly predict:
+        </p>
+        <ul className="list-disc list-inside space-y-1 ml-4">
+          <li><strong>Extreme Upsets:</strong> Major upsets with high-scoring games (total goals &gt; 3)</li>
+          <li><strong>Unlikely High-Scoring Draws:</strong> High-scoring draws between teams of very different strengths</li>
         </ul>
       </section>
 
