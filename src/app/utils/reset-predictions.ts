@@ -11,6 +11,7 @@ export async function resetAllPredictions() {
       {
         $set: {
           points: 0,
+          odds: "",
           calculated: false,
           outcomeCorrect: false,
           scoreCorrect: false,
