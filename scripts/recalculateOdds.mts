@@ -1,8 +1,11 @@
-import clientPromise from "../src/lib/mongodb";
-import {
-  calculatePredictionDifficulty,
-  getOddsDisplay,
-} from "../src/lib/oddsEstimation";
+import { config } from "dotenv";
+config({ path: ".env" }); // load environment variables
+
+// Dynamically import modules that depend on process.env
+const { default: clientPromise } = await import("../src/lib/mongodb");
+const { calculatePredictionDifficulty, getOddsDisplay } = await import(
+  "../src/lib/oddsEstimation"
+);
 
 async function main() {
   const client = await clientPromise;
@@ -19,7 +22,6 @@ async function main() {
     const gameweek = fixture.gameweek;
     if (gameweek < 1 || gameweek > 5) continue;
 
-    // Calculate odds using your logic
     const difficultyResult = calculatePredictionDifficulty(
       prediction.homeScore,
       prediction.awayScore,
