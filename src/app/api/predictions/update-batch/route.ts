@@ -32,10 +32,16 @@ export async function POST(req: Request) {
       .toArray();
 
     if (results.length === 0) {
-      return NextResponse.json({ updated: 0, message: "No results found for provided fixtureIds" });
+      return NextResponse.json({
+        updated: 0,
+        message: "No results found for provided fixtureIds",
+      });
     }
 
-    console.log(`Found ${results.length} results for fixtureIds:`, numericFixtureIds);
+    console.log(
+      `Found ${results.length} results for fixtureIds:`,
+      numericFixtureIds
+    );
 
     // 2. Get all uncalculated predictions for these fixtureIds
     const predictions = await db
@@ -45,7 +51,10 @@ export async function POST(req: Request) {
 
     console.log(`Total uncalculated predictions found: ${predictions.length}`);
     if (predictions.length === 0) {
-      return NextResponse.json({ updated: 0, message: "No uncalculated predictions found" });
+      return NextResponse.json({
+        updated: 0,
+        message: "No uncalculated predictions found",
+      });
     }
 
     // 3. Group results by fixtureId for quick lookup

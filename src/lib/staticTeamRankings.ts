@@ -73,9 +73,9 @@ export function getTeamGroup(teamName: string): number {
  *
  * LIKELY (10 points total):
  * - Expected win for strong team (2+ group difference)
- * - Any outcome for similar strength teams (0 group difference)
  *
  * MODERATELY LIKELY (15 points total):
+ * - Same group matchups (0 group difference)
  * - Minor upsets (1 group difference)
  * - Draws between adjacent groups (1 group difference)
  * - Expected win between adjacent groups (1 group difference)
@@ -123,12 +123,8 @@ export function calculateOutcomeLikelihood(
   let points: number;
   let explanation: string;
 
-  // Tier 1: UNLIKELY (20 points) - Same group matchups & major upsets & unlikely draws
-  if (groupDifference === 0) {
-    likelihood = "unlikely";
-    points = 20;
-    explanation = `Same group matchup: Both teams are in Group ${homeGroup}, making this prediction more difficult`;
-  } else if (isUpset && groupDifference >= 2) {
+  // Tier 1: UNLIKELY (20 points) - Major upsets & unlikely draws
+  if (isUpset && groupDifference >= 2) {
     likelihood = "unlikely";
     points = 20;
     explanation = `Major upset: ${
@@ -150,11 +146,15 @@ export function calculateOutcomeLikelihood(
       awayGroup
     )}) beating weak team (Group ${Math.max(homeGroup, awayGroup)})`;
   }
-  // Tier 3: MODERATELY LIKELY (15 points) - Adjacent group matchups
+  // Tier 3: MODERATELY LIKELY (15 points) - Same group matchups & adjacent group matchups
   else {
     likelihood = "moderately_likely";
     points = 15;
-    explanation = `Moderate difficulty prediction between adjacent groups (Groups ${homeGroup} vs ${awayGroup})`;
+    if (groupDifference === 0) {
+      explanation = `Same group matchup: Both teams are in Group ${homeGroup}, making this prediction moderately difficult`;
+    } else {
+      explanation = `Moderate difficulty prediction between adjacent groups (Groups ${homeGroup} vs ${awayGroup})`;
+    }
   }
 
   // NEW STIPULATION: Bump up likelihood for predictions with an excess of 3 goals

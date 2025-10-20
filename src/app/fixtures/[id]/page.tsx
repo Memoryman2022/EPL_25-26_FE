@@ -98,6 +98,7 @@ function FixturePage({
       <span className="bg-gray-800 px-2 py-2 border rounded text-white text-l text-gray-200 font-semibold">
         {formatDateTime(fixture.utcDate)}
       </span>
+      <span className="text-xs text-gray-400">Fixture ID: {fixture.id}</span>
 
       {/* Teams */}
       <div className="flex items-center justify-center gap-6 w-full max-w-sm mx-auto">
