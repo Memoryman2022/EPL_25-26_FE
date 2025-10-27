@@ -14,6 +14,10 @@ function normalizeOutcome(outcome: string): "homeWin" | "awayWin" | "draw" {
       return "homeWin";
     case "AWAYWIN":
       return "awayWin";
+    case "HOME_WIN": // database format
+      return "homeWin";
+    case "AWAY_WIN": // database format
+      return "awayWin";
     default:
       throw new Error("Unknown outcome: " + outcome);
   }
