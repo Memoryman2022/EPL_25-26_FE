@@ -31,20 +31,6 @@ export async function POST(req: Request) {
     const matches = apiData.matches || [];
 
     console.log(`API returned ${matches.length} matches`);
-    console.log(
-      `First few match IDs:`,
-      matches.slice(0, 5).map((m) => m.id)
-    );
-    console.log(
-      `Last few match IDs:`,
-      matches.slice(-5).map((m) => m.id)
-    );
-
-    if (matches.length < 100) {
-      console.warn(
-        `Warning: Only ${matches.length} matches returned. Expected around 380 for a full season.`
-      );
-    }
 
     const client = await clientPromise;
     const db = client.db("EPL2025");
