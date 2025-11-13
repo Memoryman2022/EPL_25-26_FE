@@ -56,12 +56,15 @@ export function calculatePredictionPoints(
       prediction.awayScore === result.score.fullTime.away
     ) {
       scoreCorrect = true;
+      // Ensure scores are numbers for total goals calculation
+      const homeScore = Number(prediction.homeScore);
+      const awayScore = Number(prediction.awayScore);
       const likelihood = calculateOutcomeLikelihood(
         result.homeTeam.name,
         result.awayTeam.name,
         userOutcome,
-        prediction.homeScore,
-        prediction.awayScore,
+        homeScore,
+        awayScore,
         true
       );
 
