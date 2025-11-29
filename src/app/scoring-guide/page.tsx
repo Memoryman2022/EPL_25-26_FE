@@ -1,5 +1,4 @@
-
-import React from 'react';
+import React from "react";
 
 /**
  * A guide component explaining the scoring system for users.
@@ -12,7 +11,10 @@ export default function ScoringGuide() {
         Understanding the Prediction Scoring System
       </h2>
       <p className="text-center text-gray-300">
-        Our scoring system is designed to reward predictions that are not only correct, but also bold and difficult to get right. Points are awarded based on a prediction's likelihood, with more unlikely outcomes earning you more points.
+        Our scoring system is designed to reward predictions that are not only
+        correct, but also bold and difficult to get right. Points are awarded
+        based on a prediction's likelihood, with more unlikely outcomes earning
+        you more points.
       </p>
 
       <hr className="border-gray-700" />
@@ -20,16 +22,28 @@ export default function ScoringGuide() {
       <section className="space-y-4">
         <h3 className="text-xl font-semibold">Team Groups and Rankings</h3>
         <p>
-          To simplify the scoring, all 20 teams are divided into four groups based on their strength and pre-season expectations.
+          To simplify the scoring, all 20 teams are divided into four groups
+          based on their strength and pre-season expectations.
         </p>
         <ul className="list-disc list-inside space-y-1 ml-4">
-          <li><strong>Group 1 (G1):</strong> The 5 strongest teams (e.g., Liverpool, Arsenal)</li>
-          <li><strong>Group 2 (G2):</strong> The next 5 strongest teams</li>
-          <li><strong>Group 3 (G3):</strong> The next 5 strongest teams</li>
-          <li><strong>Group 4 (G4):</strong> The 5 weakest teams (e.g., Everton, Sunderland)</li>
+          <li>
+            <strong>Group 1 (G1):</strong> The 5 strongest teams (e.g.,
+            Liverpool, Arsenal)
+          </li>
+          <li>
+            <strong>Group 2 (G2):</strong> The next 5 strongest teams
+          </li>
+          <li>
+            <strong>Group 3 (G3):</strong> The next 5 strongest teams
+          </li>
+          <li>
+            <strong>Group 4 (G4):</strong> The 5 weakest teams (e.g., Everton,
+            Sunderland)
+          </li>
         </ul>
         <p className="mt-2">
-          The <strong>group</strong> of each team is the main factor in determining how many points your prediction is worth.
+          The <strong>group</strong> of each team is the main factor in
+          determining how many points your prediction is worth.
         </p>
       </section>
 
@@ -38,45 +52,90 @@ export default function ScoringGuide() {
       <section className="space-y-4">
         <h3 className="text-xl font-semibold">How Your Prediction is Scored</h3>
         <p>
-          You earn <strong>5 points</strong> for correctly predicting the match outcome (home win, draw, or away win).
+          You earn <strong>5 points</strong> for correctly predicting the match
+          outcome (home win, draw, or away win).
         </p>
         <p>
-          If you also predict the exact score correctly, your 5 points are multiplied by a difficulty factor (2x, 3x, 4x, or 5x) based on how unlikely the prediction was.
+          If you also predict the exact score correctly, your 5 points are
+          multiplied by a difficulty factor (2x, 3x, 4x, or 5x) based on how
+          unlikely the prediction was.
         </p>
 
-        <h4 className="text-lg font-bold text-green-400">Tier 1: Likely Outcomes (5 × 2 = 10 Points)</h4>
+        <h4 className="text-lg font-bold text-green-400">
+          Tier 1: Likely Outcomes (5 × 2 = 10 Points)
+        </h4>
         <p>
-          This is the standard score for predictions that are considered the most probable. You will earn <strong>10 points</strong> if you correctly predict:
+          This is the standard score for predictions that are considered the
+          most probable. You will earn <strong>10 points</strong> if you
+          correctly predict:
         </p>
         <ul className="list-disc list-inside space-y-1 ml-4">
-          <li><strong>An Expected Win:</strong> A stronger team (with a group difference of 2 or more) beats a much weaker team. For example, a G1 team beating a G4 team.</li>
+          <li>
+            <strong>An Expected Win:</strong> A stronger team (with a group
+            difference of 2 or more) beats a much weaker team. For example, a G1
+            team beating a G4 team.
+          </li>
         </ul>
 
-        <h4 className="text-lg font-bold text-yellow-400 mt-6">Tier 2: Moderately Likely Outcomes (5 × 3 = 15 Points)</h4>
+        <h4 className="text-lg font-bold text-yellow-400 mt-6">
+          Tier 2: Moderately Likely Outcomes (5 × 3 = 15 Points)
+        </h4>
         <p>
-          This tier rewards predictions that are a bit more difficult. You will earn <strong>15 points</strong> if you correctly predict:
+          This tier rewards predictions that are a bit more difficult. You will
+          earn <strong>15 points</strong> if you correctly predict:
         </p>
         <ul className="list-disc list-inside space-y-1 ml-4">
-          <li><strong>An Outcome Between Adjacent Groups:</strong> Any win, loss, or draw in a match between teams from adjacent groups (with a group difference of 1). This covers minor upsets (like a G2 team beating a G1 team) as well as close matches and draws between these teams.</li>
+          <li>
+            <strong>An Outcome Between Adjacent Groups:</strong> Any win, loss,
+            or draw in a match between teams from adjacent groups (with a group
+            difference of 1). This covers minor upsets (like a G2 team beating a
+            G1 team) as well as close matches and draws between these teams.
+          </li>
+          <li>
+            <strong>Same Group Matchups:</strong> Any result—win, loss, or
+            draw—in a match between teams of the same strength group (with a
+            group difference of 0). For example, a G1 team playing another G1
+            team.
+          </li>
         </ul>
 
-        <h4 className="text-lg font-bold text-red-400 mt-6">Tier 3: Unlikely Outcomes (5 × 4 = 20 Points)</h4>
+        <h4 className="text-lg font-bold text-red-400 mt-6">
+          Tier 3: Unlikely Outcomes (5 × 4 = 20 Points)
+        </h4>
         <p>
-          This tier rewards difficult predictions. You will earn <strong>20 points</strong> if you correctly predict:
+          This tier rewards difficult predictions. You will earn{" "}
+          <strong>20 points</strong> if you correctly predict:
         </p>
         <ul className="list-disc list-inside space-y-1 ml-4">
-          <li><strong>Same Group Matchups:</strong> Any result—win, loss, or draw—in a match between teams of the same strength group (with a group difference of 0). For example, a G1 team playing another G1 team.</li>
-          <li><strong>A Major Upset:</strong> A team from a weaker group (with a group difference of 2 or more) beats a much stronger team. For example, a G3 team beating a G1 team.</li>
-          <li><strong>A Draw Between Dissimilar Teams:</strong> A draw in a match between two teams of vastly different strengths (with a group difference of 2 or more). For example, a G1 team drawing with a G3 team.</li>
+          <li>
+            <strong>A Major Upset:</strong> A team from a weaker group (with a
+            group difference of 2 or more) beats a much stronger team. For
+            example, a G3 team beating a G1 team.
+          </li>
+          <li>
+            <strong>A Draw Between Dissimilar Teams:</strong> A draw in a match
+            between two teams of vastly different strengths (with a group
+            difference of 2 or more). For example, a G1 team drawing with a G3
+            team.
+          </li>
         </ul>
 
-        <h4 className="text-lg font-bold text-purple-400 mt-6">Tier 4: Very Unlikely Outcomes (5 × 5 = 25 Points)</h4>
+        <h4 className="text-lg font-bold text-purple-400 mt-6">
+          Tier 4: Very Unlikely Outcomes (5 × 5 = 25 Points)
+        </h4>
         <p>
-          This is the highest-scoring tier for the most difficult predictions. You will earn <strong>25 points</strong> if you correctly predict:
+          This is the highest-scoring tier for the most difficult predictions.
+          You will earn <strong>25 points</strong> if you correctly predict:
         </p>
         <ul className="list-disc list-inside space-y-1 ml-4">
-          <li><strong>Extreme Upsets:</strong> Major upsets with high-scoring games (total goals &gt; 3)</li>
-          <li><strong>Unlikely High-Scoring Draws:</strong> High-scoring draws between teams of very different strengths</li>
+          <li>
+            <strong>Extreme Upsets:</strong> Major upsets with high-scoring
+            games (total goals &gt; 3)
+          </li>
+          <li>
+            <strong>Unlikely High-Scoring Draws:</strong> High-scoring draws
+            between teams of very different strengths
+          </li>
         </ul>
       </section>
 
@@ -85,15 +144,32 @@ export default function ScoringGuide() {
       <section className="space-y-4">
         <h3 className="text-xl font-semibold">The Total Goals Bonus</h3>
         <p>
-          There is one final rule that can boost your score. If the <strong>total number of goals in your prediction is more than 3</strong>, your prediction's score will be "bumped up" to the next tier of difficulty.
+          There is one final rule that can boost your score. If the{" "}
+          <strong>
+            total number of goals in your prediction is more than 3
+          </strong>
+          , your prediction's score will be "bumped up" to the next tier of
+          difficulty.
         </p>
         <ul className="list-disc list-inside space-y-1 ml-4">
-          <li>A <strong>Likely</strong> prediction (10 points) becomes a <strong>Moderately Likely</strong> prediction (15 points).</li>
-          <li>A <strong>Moderately Likely</strong> prediction (15 points) becomes an <strong>Unlikely</strong> prediction (20 points).</li>
-          <li>An <strong>Unlikely</strong> prediction (20 points) remains an <strong>Unlikely</strong> prediction (it cannot be bumped up further).</li>
+          <li>
+            A <strong>Likely</strong> prediction (10 points) becomes a{" "}
+            <strong>Moderately Likely</strong> prediction (15 points).
+          </li>
+          <li>
+            A <strong>Moderately Likely</strong> prediction (15 points) becomes
+            an <strong>Unlikely</strong> prediction (20 points).
+          </li>
+          <li>
+            An <strong>Unlikely</strong> prediction (20 points) becomes a{" "}
+            <strong> Highly Unlikely</strong> prediction (25 points).
+          </li>
         </ul>
         <p className="mt-2 text-sm text-gray-400">
-          For example, if you predict a G1 vs. G4 match to be 3-1, your prediction would normally be "Likely" and worth 10 points. However, because the total goals are 4 (which is more than 3), the difficulty is bumped up, and your prediction is now worth 15 points.
+          For example, if you predict a G1 vs. G4 match to be 3-1, your
+          prediction would normally be "Likely" and worth 10 points. However,
+          because the total goals are 4 (which is more than 3), the difficulty
+          is bumped up, and your prediction is now worth 15 points.
         </p>
       </section>
     </div>

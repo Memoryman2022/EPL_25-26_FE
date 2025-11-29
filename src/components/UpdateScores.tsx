@@ -59,7 +59,7 @@ export default function UpdateScoresButton() {
       onClick={handleUpdate}
       disabled={loading}
     >
-      {loading ? "Updating..." : "Update Scores"}
+      {loading ? "Updating..." : "Update User Scores"}
     </button>
   );
 }

@@ -60,7 +60,7 @@ export default function UserProfile() {
 
   return (
     <div>
-      <div className="user-profile max-w-md mx-auto p-4 bg-gray-800  shadow-md">
+      <div className="user-profile w-full mx-auto p-4 bg-gray-800 ">
         <h2 className="text-2xl font-bold text-center mt-0 m-4">
           {user.userName}
         </h2>

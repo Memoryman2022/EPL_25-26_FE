@@ -14,7 +14,7 @@ export default function Header() {
   const [lastScrollY, setLastScrollY] = useState(0);
   const router = useRouter();
   const pathname = usePathname();
-
+  const [loading, setLoading] = useState(false);
   const { user, setUser, authLoaded } = useUser();
 
   useEffect(() => {
@@ -61,7 +61,7 @@ export default function Header() {
       </div>
 
       {menuOpen && (
-        <nav className="bg-gray-800 border-t border-green-200">
+        <nav className="bg-gray-800  border-t border-green-200">
           <ul className="flex flex-col text-white p-4 space-y-2 text-sm text-right">
             {!user ? (
               <>
@@ -82,7 +82,10 @@ export default function Header() {
             ) : (
               <>
                 <li className="mb-[20px]">
-                  <button onClick={handleLogout} className="text-left w-full">
+                  <button
+                    onClick={handleLogout}
+                    className="text-right  bg-green-800 px-4 py-2 rounded hover:bg-red-700 "
+                  >
                     Logout
                   </button>
                 </li>
@@ -128,6 +131,7 @@ export default function Header() {
                       <button
                         className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 w-100px"
                         onClick={async () => {
+                          setLoading(true);
                           try {
                             const token = localStorage.getItem("token");
                             const res = await fetch("/api/results/update", {
@@ -151,10 +155,14 @@ export default function Header() {
                           } catch (err) {
                             console.error(err);
                             alert("Error updating results.");
+                          } finally {
+                             setLoading(false);
                           }
                         }}
+                        disabled={loading}
                       >
-                        Update Results
+                        {loading ? "Updating..." : "Update Real Results"}
+                        
                       </button>
                     </li>
 
