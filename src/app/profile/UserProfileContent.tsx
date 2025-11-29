@@ -62,14 +62,15 @@ export default function UserProfile() {
     <div>
       <div className="user-profile w-full mx-auto p-2 bg-gray-800 ">
         <div className="flex gap-4 items-start">
-          <Image
-            src={user.profileImage || "/default-profile.png"}
-            alt={`${user.userName} profile`}
-            width={120}
-            height={120}
-            className="rounded-lg"
-          />
-          <div className="flex flex-col gap-1">
+          <div className="w-38 h-38 relative rounded-lg overflow-hidden">
+        <Image
+          src={user.profileImage || "/default-profile.png"}
+          alt={`${user.userName} profile`}
+          fill
+          className="object-cover"
+        />
+      </div>
+          <div className="flex flex-col gap-1 pl-5">
             <h2 className="text-xl font-bold text-left text-gray-300">{user.userName}</h2>
             <div className="grid grid-cols-2 w-[135px] gap-1 pt-2 border-t text-gray-300">
               <p className="font-semibold">POSITION:</p>
