@@ -60,31 +60,31 @@ export default function UserProfile() {
 
   return (
     <div>
-      <div className="user-profile max-w-md mx-auto p-4 bg-gray-800  shadow-md">
-        <h2 className="text-2xl font-bold text-center mt-0 m-4">
-          {user.userName}
-        </h2>
+      <div className="user-profile w-full mx-auto p-2 bg-gray-800 ">
         <div className="flex gap-4 items-start">
-          <Image
-            src={user.profileImage || "/default-profile.png"}
-            alt={`${user.userName} profile`}
-            width={120}
-            height={120}
-            className="rounded-lg"
-          />
-          <div className="flex flex-col space-y-2">
-            <p className="gap-10">
-              <strong>POSITION:</strong> {user.position}
-            </p>
-            <p>
-              <strong>POINTS:</strong> {user.score}
-            </p>
-            <p>
-              <strong>SCORES:</strong> {user.correctScores}
-            </p>
-            <p>
-              <strong>OUTCOMES:</strong> {user.correctOutcomes}
-            </p>
+          <div className="w-38 h-38 relative rounded-lg overflow-hidden">
+        <Image
+          src={user.profileImage || "/default-profile.png"}
+          alt={`${user.userName} profile`}
+          fill
+          className="object-cover"
+        />
+      </div>
+          <div className="flex flex-col gap-1 pl-5">
+            <h2 className="text-xl font-bold text-left text-gray-300">{user.userName}</h2>
+            <div className="grid grid-cols-2 w-[135px] gap-1 pt-2 border-t text-gray-300">
+              <p className="font-semibold">POSITION:</p>
+              <p className="text-right">{user.position}</p>
+
+              <p className="font-semibold">SCORES:</p>
+              <p className="text-right">{user.correctScores}</p>
+
+              <p className="font-semibold">OUTCOMES:</p>
+              <p className="text-right">{user.correctOutcomes}</p>
+
+              <p className="font-semibold">POINTS:</p>
+              <p className="text-right">{user.score}</p>
+            </div>
           </div>
         </div>
       </div>

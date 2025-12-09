@@ -103,7 +103,7 @@ export default function EPLTable() {
                 index % 2 === 0
                   ? "bg-[rgba(31,41,55,0.3)]"
                   : "bg-[rgba(0,0,0,0.3)]"
-              } hover:bg-gray-200 transition`}
+              } hover:bg-gray-900 transition`}
             >
               <td className="py-1 px-1">{formatOrdinal(index + 1)}</td>
               {/* <td className="py-1 px-1">{formatOrdinal(team.position)}</td> */}

@@ -58,28 +58,27 @@ export default function LeaderboardClient({ onUserUpdate }: Props) {
 
   return (
     <div className="max-w-screen-md mx-auto p-4 space-y-6">
-      <h2 className="text-xl font-bold text-center mb-1">Leaderboard</h2>
 
       <table className="w-full text-[12px] table-auto border-separate border-spacing-y-2 text-sm text-white">
         <thead>
-          <tr className="text-left bg-white/10">
-            <th className="px-3 py-2 w-6">Pos</th>
-            <th className="px-3 py-2">User</th>
-            <th className="px-3 py-2 text-center">Scores</th>
-            <th className="px-3 py-2 text-center">Outcomes</th>
-            <th className="px-3 py-2 text-right">Points</th>
+          <tr className="text-left bg-black/30">
+            <th className="px-2 py-1 w-6">Pos</th>
+            <th className="px-2 py-1">User</th>
+            <th className="px-2 py-1 text-center">Scores</th>
+            <th className="px-2 py-1 text-center">Outcomes</th>
+            <th className="px-2 py-1 text-right">Points</th>
           </tr>
         </thead>
         <tbody>
           {users.map((user) => (
             <tr
               key={user._id}
-              className="bg-white/5 hover:bg-white/10 rounded-lg transition"
+              className="bg-black/50 hover:bg-white/30 rounded-lg transition"
             >
-              <td className="px-3 py-2 font-mono font-semibold">
+              <td className="px-2 py-1 font-mono font-semibold">
                 {user.position}
               </td>
-              <td className="px-3 py-2 flex items-center gap-2">
+              <td className="px-2 py-1 flex items-center gap-2">
                 <Link
                   href={`/profile?userId=${user._id}`}
                   className="flex items-center gap-2 hover:underline text-white"
@@ -116,9 +115,9 @@ export default function LeaderboardClient({ onUserUpdate }: Props) {
                   )}
               </td>
 
-              <td className="px-3 py-2 text-center">{user.correctScores}</td>
-              <td className="px-3 py-2 text-center">{user.correctOutcomes}</td>
-              <td className="px-3 py-2 text-center font-mono font-semibold">
+              <td className="px-2 py-1 text-center">{user.correctScores}</td>
+              <td className="px-2 py-1 text-center">{user.correctOutcomes}</td>
+              <td className="px-2 py-1 text-center font-mono font-semibold">
                 {user.score}
               </td>
             </tr>
