@@ -4,7 +4,7 @@ const nextConfig = {
     domains: [],
   },
   experimental: {
-    optimizeCss: false, // avoids LightningCSS binary issues on Netlify
+    optimizeCss: false, // keeps LightningCSS off
   },
 };
 

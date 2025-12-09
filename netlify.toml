@@ -3,5 +3,8 @@
   publish = ".next"
   functions = "netlify/functions"
 
+[build.environment]
+  NEXT_BUILDER = "webpack"
+
 [[plugins]]
   package = "@netlify/plugin-nextjs"
