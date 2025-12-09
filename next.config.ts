@@ -4,8 +4,10 @@ const nextConfig = {
     domains: [],
   },
   experimental: {
-    optimizeCss: false, // avoids LightningCSS binary issues on Netlify
+    optimizeCss: false, // optional, keeps LightningCSS off
   },
+  // Force Webpack for production builds
+  turbo: false,
 };
 
-export default nextConfig;
+module.exports = nextConfig;
