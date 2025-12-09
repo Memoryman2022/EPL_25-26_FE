@@ -4,7 +4,6 @@ const nextConfig = {
     domains: [],
   },
   experimental: {
-    turbo: false,
     optimizeCss: false, // Fix lightningcss build failure on Netlify
   },
 };
