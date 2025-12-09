@@ -1,8 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    domains: [
-      ],
+    domains: [],
+  },
+  experimental: {
+    optimizeCss: false, // Fix lightningcss build failure on Netlify
   },
 };
 
