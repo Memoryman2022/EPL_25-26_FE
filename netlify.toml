@@ -1,5 +1,5 @@
 [build]
-  command = "next build --no-turbo"
+  command = "npm run build"
   publish = ".next"
   functions = "netlify/functions"
 
