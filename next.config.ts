@@ -4,10 +4,8 @@ const nextConfig = {
     domains: [],
   },
   experimental: {
-    optimizeCss: false, // optional, keeps LightningCSS off
+    optimizeCss: false, // keeps LightningCSS off
   },
-  // Force Webpack for production builds
-  turbo: false,
 };
 
 module.exports = nextConfig;
