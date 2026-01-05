@@ -152,6 +152,30 @@ export const ALL_TEAMS: TeamRanking[] = [
   { name: "Wolverhampton Wanderers", rank: 20, group: 4 },
 ];
 
+// All teams ranked from 1-20 (strongest to weakest) Gameweek 21-23
+// export const ALL_TEAMS: TeamRanking[] = [
+//   { name: "Arsenal", rank: 1, group: 1 },
+//   { name: "Manchester City", rank: 2, group: 1 },
+//   { name: "Aston Villa", rank: 3, group: 1 },
+//   { name: "Liverpool", rank: 5, group: 1 },
+//   { name: "Chelsea", rank: 4, group: 1 },
+//   { name: "Manchester United", rank: 7, group: 2 },
+//   { name: "Brentford", rank: 12, group: 2 },
+//   { name: "Sunderland", rank: 6, group: 2 },
+//   { name: "Newcastle United", rank: 11, group: 2 },
+//   { name: "Brighton & Hove Albion", rank: 9, group: 2 },
+//   { name: "Fulham", rank: 15, group: 3 },
+//   { name: "Everton", rank: 10, group: 3 },
+//   { name: "Tottenham Hotspur", rank: 13, group: 3 },
+//   { name: "Crystal Palace", rank: 8, group: 3 },
+//   { name: "Bournemouth", rank: 14, group: 3 },
+//   { name: "Leeds United", rank: 16, group: 4 },
+//   { name: "Nottingham Forest", rank: 17, group: 4 },
+//   { name: "West Ham United", rank: 18, group: 4 },
+//   { name: "Burnley", rank: 19, group: 4 },
+//   { name: "Wolverhampton Wanderers", rank: 20, group: 4 },
+// ];
+
 // Group definitions for easy reference
 export const TEAM_GROUPS = {
   G1: ALL_TEAMS.filter((team) => team.group === 1), // Ranks 1-5 (Top tier)
